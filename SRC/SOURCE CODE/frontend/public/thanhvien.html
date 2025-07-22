@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Danh sách thành viên</title>
+    <link rel="icon" type="image/x-icon" href="/public/favicon.ico" />
+    <link rel="stylesheet" href="/public/output.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      table th,
+      table td {
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        text-align: left;
+      }
+      table thead tr {
+        background-color: #f7fafc;
+      }
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 400px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .modal-content h2 {
+        margin-top: 0;
+      }
+      .modal-content label {
+        display: block;
+        margin: 10px 0 5px;
+      }
+      .modal-content input,
+      .modal-content select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .modal-content .btn-container {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #333;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-100 font-['Inter',sans-serif] min-h-screen flex flex-col"
+  >
+    <header class="bg-white shadow-md p-4">
+      <div class="container mx-auto flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <img src="/public/favicon.ico" alt="Logo" class="h-8 w-8" />
+          <h1 class="text-2xl font-bold text-blue-700">Danh sách thành viên</h1>
+        </div>
+        <div class="flex space-x-2 items-center">
+          <button
+            id="logoutButton"
+            class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition flex items-center"
+          >
+            <svg
+              class="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h3a3 3 0 013 3v1"
+              ></path>
+            </svg>
+            Đăng xuất
+          </button>
+          <a
+            href="/"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center"
+          >
+            <svg
+              class="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+              ></path>
+            </svg>
+            Quay lại Trang chính
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container mx-auto flex-1 p-4">
+      <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <h2 class="text-xl font-semibold text-blue-700 mb-4">
+          Danh sách thành viên
+        </h2>
+        <table id="memberTable" class="w-full border-collapse">
+          <thead>
+            <tr>
+              <th>Tên đăng nhập</th>
+              <th>Vai trò</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody id="memberTableBody"></tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- Modal chỉnh sửa -->
+    <div id="editModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <h2>Chỉnh sửa thành viên</h2>
+        <form id="editForm">
+          <label for="editTenDangNhap">Tên đăng nhập:</label>
+          <input
+            type="text"
+            id="editTenDangNhap"
+            name="ten_dang_nhap"
+            required
+          />
+
+          <label for="editVaiTro">Vai trò:</label>
+          <select id="editVaiTro" name="vai_tro">
+            <option value="SinhVien">Sinh viên</option>
+            <option value="GiangVien">Giảng viên</option>
+          </select>
+
+          <label for="editTrangThai">Trạng thái:</label>
+          <select id="editTrangThai" name="trang_thai">
+            <option value="ChoXetDuyet">Chờ xét duyệt</option>
+            <option value="DaXetDuyet">Đã xét duyệt</option>
+          </select>
+
+          <input
+            type="hidden"
+            id="originalTenDangNhap"
+            name="original_ten_dang_nhap"
+          />
+
+          <div class="btn-container">
+            <button
+              type="button"
+              onclick="closeEditModal()"
+              style="background-color: #ccc; color: black"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              style="background-color: #4caf50; color: white"
+            >
+              Lưu
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      async function fetchMembers() {
+        const token = localStorage.getItem("access_token");
+        try {
+          const response = await fetch("http://127.0.0.1:8000/users/", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!response.ok)
+            throw new Error("Không thể lấy danh sách thành viên");
+          const users = await response.json();
+
+          const tableBody = document.getElementById("memberTableBody");
+          tableBody.innerHTML = "";
+
+          // Lọc bỏ tài khoản admin
+          const filteredUsers = users.filter(
+            (user) => user.ten_dang_nhap !== "admin"
+          );
+
+          filteredUsers.forEach((user) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                        <td>${user.ten_dang_nhap}</td>
+                        <td>${user.vai_tro}</td>
+                        <td>${user.trang_thai}</td>
+                        <td>
+                            <button class="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700" onclick="openEditModal('${user.ten_dang_nhap}', '${user.vai_tro}', '${user.trang_thai}')">Sửa</button>
+                            <button class="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700" onclick="deleteUser('${user.ten_dang_nhap}')">Xóa</button>
+                        </td>
+                    `;
+            tableBody.appendChild(row);
+          });
+        } catch (error) {
+          showNotification(error.message || "Đã xảy ra lỗi!");
+        }
+      }
+
+      async function deleteUser(tenDangNhap) {
+        if (!confirm(`Bạn có chắc chắn muốn xóa tài khoản ${tenDangNhap}?`))
+          return;
+
+        const token = localStorage.getItem("access_token");
+        try {
+          const response = await fetch("http://127.0.0.1:8000/delete_user/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ ten_dang_nhap: tenDangNhap }),
+          });
+          if (!response.ok) throw new Error("Không thể xóa tài khoản");
+          const data = await response.json();
+          showNotification(data.message);
+          fetchMembers(); // Làm mới danh sách
+        } catch (error) {
+          showNotification(error.message || "Đã xảy ra lỗi!");
+        }
+      }
+
+      function openEditModal(tenDangNhap, vaiTro, trangThai) {
+        const modal = document.getElementById("editModal");
+        const editTenDangNhap = document.getElementById("editTenDangNhap");
+        const editVaiTro = document.getElementById("editVaiTro");
+        const editTrangThai = document.getElementById("editTrangThai");
+        const originalTenDangNhap = document.getElementById(
+          "originalTenDangNhap"
+        );
+
+        editTenDangNhap.value = tenDangNhap;
+        editVaiTro.value = vaiTro;
+        editTrangThai.value = trangThai;
+        originalTenDangNhap.value = tenDangNhap;
+
+        modal.style.display = "flex";
+      }
+
+      function closeEditModal() {
+        const modal = document.getElementById("editModal");
+        modal.style.display = "none";
+      }
+
+      document
+        .getElementById("editForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const tenDangNhap = document.getElementById(
+            "originalTenDangNhap"
+          ).value;
+          const tenDangNhapMoi =
+            document.getElementById("editTenDangNhap").value;
+          const vaiTro = document.getElementById("editVaiTro").value;
+          const trangThai = document.getElementById("editTrangThai").value;
+          const token = localStorage.getItem("access_token");
+
+          try {
+            const response = await fetch("http://127.0.0.1:8000/update_user/", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                ten_dang_nhap: tenDangNhap,
+                ten_dang_nhap_moi: tenDangNhapMoi,
+                vai_tro: vaiTro,
+                trang_thai: trangThai,
+              }),
+            });
+            if (!response.ok) throw new Error("Không thể cập nhật tài khoản");
+            const data = await response.json();
+            showNotification(data.message);
+            closeEditModal();
+            fetchMembers(); // Làm mới danh sách
+          } catch (error) {
+            showNotification(error.message || "Đã xảy ra lỗi!");
+          }
+        });
+
+      function showNotification(message) {
+        const notification = document.createElement("div");
+        notification.className = "notification";
+        notification.textContent = message;
+        notification.style.display = "block";
+        document.body.appendChild(notification);
+        setTimeout(() => {
+          notification.remove();
+        }, 3000);
+      }
+
+      function logout() {
+        localStorage.removeItem("access_token");
+        showNotification("Đã đăng xuất thành công!");
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 2000);
+      }
+
+      // Kiểm tra token và lấy danh sách khi trang được tải
+      document.addEventListener("DOMContentLoaded", () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+          window.location.href = "/";
+        } else {
+          fetchMembers();
+        }
+
+        const logoutButton = document.getElementById("logoutButton");
+        if (logoutButton) {
+          logoutButton.addEventListener("click", logout);
+        }
+      });
+    </script>
+  </body>
+</html>

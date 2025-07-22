@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xét duyệt Giảng viên</title>
+    <link rel="stylesheet" href="/public/output.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f1f5f9;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .header {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 40;
+      }
+      .header h1 {
+        font-size: 2.25rem;
+        color: #1e40af;
+      }
+      .back-button {
+        background-color: #26a69a;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background-color 0.2s;
+      }
+      .back-button:hover {
+        background-color: #1e877f;
+      }
+      .teacher-requests {
+        margin-top: 5rem;
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #b2d9d4;
+      }
+      .teacher-requests h2 {
+        font-size: 1.5rem;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+      }
+      .request-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .request-table th,
+      .request-table td {
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        text-align: left;
+      }
+      .request-table th {
+        background-color: #f9fafb;
+        font-weight: 600;
+      }
+      .request-table button {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        margin-right: 0.75rem;
+        transition: background-color 0.2s;
+      }
+      .approve-button {
+        background-color: #10b981;
+        color: white;
+      }
+      .approve-button:hover {
+        background-color: #059669;
+      }
+      .reject-button {
+        background-color: #ef4444;
+        color: white;
+      }
+      .reject-button:hover {
+        background-color: #dc2626;
+      }
+      .error-message {
+        color: #dc2626;
+        font-weight: 600;
+        text-align: center;
+        padding: 1.5rem;
+        background-color: #fee2e2;
+        border-radius: 0.5rem;
+        margin-top: 2rem;
+      }
+      .hidden {
+        display: none;
+      }
+      @media (max-width: 640px) {
+        .header h1 {
+          font-size: 1.5rem;
+        }
+        .back-button {
+          padding: 0.5rem 1rem;
+        }
+        .teacher-requests {
+          margin-top: 4rem;
+          padding: 1.5rem;
+        }
+        .request-table th,
+        .request-table td {
+          padding: 0.5rem;
+        }
+        .request-table button {
+          padding: 0.5rem 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 font-['Inter',sans-serif] min-h-screen">
+    <div class="container max-w-7xl mx-auto">
+      <div class="header">
+        <h1>Xét duyệt Giảng viên</h1>
+        <a href="/" class="back-button">Quay lại</a>
+      </div>
+      <div id="teacherRequestsSection" class="teacher-requests">
+        <h2>Danh sách yêu cầu Giảng viên</h2>
+        <table class="request-table">
+          <thead>
+            <tr>
+              <th>Tên đăng nhập</th>
+              <th>Thời gian yêu cầu</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody id="requestTableBody"></tbody>
+        </table>
+      </div>
+      <div id="errorMessage" class="error-message hidden"></div>
+    </div>
+
+    <script>
+      // Hàm hiển thị thông báo lỗi
+      function showError(message) {
+        const errorMessage = document.getElementById("errorMessage");
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("hidden");
+      }
+
+      // Hàm ẩn nội dung nếu không có quyền
+      function hideContent() {
+        document
+          .getElementById("teacherRequestsSection")
+          .classList.add("hidden");
+      }
+
+      // Hàm xét duyệt giảng viên
+      function approveTeacher(tenDangNhap) {
+        const token = localStorage.getItem("access_token");
+        fetch("http://127.0.0.1:8000/promote_to_giangvien/", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ten_dang_nhap: tenDangNhap }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((err) => {
+                throw new Error(err.detail || "Lỗi không xác định");
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            alert(data.message);
+            loadTeacherRequests(); // Tải lại danh sách
+          })
+          .catch((error) => {
+            showError(`Lỗi khi xét duyệt: ${error.message}`);
+          });
+      }
+
+      // Hàm từ chối yêu cầu
+      function rejectTeacher(tenDangNhap) {
+        const token = localStorage.getItem("access_token");
+        fetch("http://127.0.0.1:8000/reject_teacher_request/", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ten_dang_nhap: tenDangNhap }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((err) => {
+                throw new Error(err.detail || "Lỗi không xác định");
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            alert(data.message);
+            loadTeacherRequests(); // Tải lại danh sách
+          })
+          .catch((error) => {
+            showError(`Lỗi khi từ chối: ${error.message}`);
+          });
+      }
+
+      // Hàm tải danh sách yêu cầu giảng viên
+      function loadTeacherRequests() {
+        const token = localStorage.getItem("access_token");
+        fetch("http://127.0.0.1:8000/teacher_requests/", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((err) => {
+                throw new Error(err.detail || "Lỗi không xác định");
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            const tableBody = document.getElementById("requestTableBody");
+            tableBody.innerHTML = "";
+            if (data.length === 0) {
+              tableBody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-600">Không có yêu cầu nào.</td></tr>`;
+              return;
+            }
+            data.forEach((request) => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                            <td>${request.ten_dang_nhap}</td>
+                            <td>${request.timestamp}</td>
+                            <td>
+                                <button class="approve-button" onclick="approveTeacher('${request.ten_dang_nhap}')">Duyệt</button>
+                                <button class="reject-button" onclick="rejectTeacher('${request.ten_dang_nhap}')">Từ chối</button>
+                            </td>
+                        `;
+              tableBody.appendChild(row);
+            });
+          })
+          .catch((error) => {
+            showError(`Lỗi khi tải danh sách yêu cầu: ${error.message}`);
+          });
+      }
+
+      // Kiểm tra token và vai trò khi trang được tải
+      document.addEventListener("DOMContentLoaded", () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+          showError("Vui lòng đăng nhập để tiếp tục!");
+          hideContent();
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 2000);
+          return;
+        }
+
+        fetch("http://127.0.0.1:8000/check_token", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((err) => {
+                throw new Error(err.detail || "Token không hợp lệ");
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.vai_tro !== "QuanTri") {
+              showError("Chỉ Quản trị mới có thể truy cập trang này!");
+              hideContent();
+              setTimeout(() => {
+                window.location.href = "/";
+              }, 2000);
+              return;
+            }
+            // Nếu là Quản trị, tải danh sách yêu cầu
+            loadTeacherRequests();
+          })
+          .catch((error) => {
+            showError(
+              `Phiên đăng nhập hết hạn hoặc lỗi: ${error.message}. Vui lòng đăng nhập lại!`
+            );
+            hideContent();
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 2000);
+          });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeLab - Lịch sử đánh giá</title>
+    <link rel="stylesheet" href="/public/output.css" />
+    <link rel="icon" type="image/x-icon" href="/public/favicon.ico" />
+    <style>
+      .full-screen-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem;
+        text-align: left;
+      }
+      thead tr {
+        background-color: #f7fafc;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal.active {
+        display: flex;
+      }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-gray-100 to-gray-200">
+    <div class="full-screen-container">
+      <header class="bg-white shadow-lg p-6 text-center">
+        <h1 class="text-4xl font-bold text-blue-700">
+          CodeLab - Lịch sử đánh giá
+        </h1>
+        <p class="text-gray-600 mt-2 text-lg">
+          Xem lại các lần kiểm tra mã nguồn
+        </p>
+        <div class="flex justify-center space-x-4 mt-4">
+          <a
+            href="/"
+            class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >Quay lại kiểm tra</a
+          >
+          <span id="userRole" class="text-gray-600 font-medium hidden"></span>
+        </div>
+      </header>
+
+      <main class="flex-1 p-6">
+        <div class="bg-white rounded-xl shadow-lg p-6 max-w-full mx-auto">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">
+            Lịch sử kiểm tra
+          </h3>
+          <div class="flex space-x-2 mb-4">
+            <input
+              type="text"
+              id="historySearch"
+              placeholder="Tìm kiếm theo ngôn ngữ hoặc tên người dùng..."
+              class="flex-1 p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              id="refreshHistory"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            >
+              Làm mới
+            </button>
+          </div>
+          <div
+            id="loading"
+            class="hidden text-blue-600 font-medium text-center"
+          >
+            Đang tải lịch sử...
+          </div>
+          <table id="historyTable" class="mt-4">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Thời gian</th>
+                <th>Ngôn ngữ</th>
+                <th>Người dùng</th>
+                <th>Kết quả</th>
+                <th>Chi tiết</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+          <div class="bg-white rounded-xl shadow-lg p-6 max-w-full mx-auto mt-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Thống kê sinh viên</h3>
+            <table id="statsTable" class="mt-4">
+              <thead>
+                <tr>
+                  <th>Tên đăng nhập</th>
+                  <th>Số lần đăng nhập</th>
+                  <th>Số lần kiểm tra mã</th>
+                </tr>
+              </thead>
+              <tbody id="statsTableBody"></tbody>
+            </table>
+            <div id="noStats" class="hidden text-center text-gray-600 bg-gray-100 p-4 rounded-md mt-4">
+              Chưa có thống kê.
+            </div>          
+          <div
+            id="noHistory"
+            class="hidden text-center text-gray-600 bg-gray-100 p-4 rounded-md mt-4"
+          >
+            Chưa có lịch sử kiểm tra.
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div id="detailModal" class="modal">
+      <div
+        class="bg-white p-6 rounded-lg shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto"
+      >
+        <h4 class="text-lg font-semibold text-gray-800 mb-4">
+          Chi tiết kiểm tra
+        </h4>
+        <pre
+          id="modalContent"
+          class="bg-gray-100 p-4 rounded-md text-sm overflow-x-auto"
+        ></pre>
+        <button
+          onclick="closeModal()"
+          class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+
+    <script src="/public/Lich_Su.js"></script>
+  </body>
+</html>

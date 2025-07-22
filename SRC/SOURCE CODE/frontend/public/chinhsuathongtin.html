@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chỉnh sửa thông tin cá nhân</title>
+    <link rel="icon" type="image/x-icon" href="/public/favicon.ico" />
+    <link rel="stylesheet" href="/public/output.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f9fafb;
+        color: #1e293b;
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        overflow-y: hidden;
+      }
+
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      * {
+        scrollbar-width: none;
+      }
+      .opacity-50 {
+        opacity: 0.5;
+        pointer-events: none; /* Ngăn không cho người dùng tương tác với nút */
+      }
+      .sidebar {
+        width: 280px;
+        background: #ffffff;
+        height: 100vh;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        padding: 2rem;
+        border-right: 1px solid #e5e7eb;
+        overflow-y: auto;
+      }
+
+      .sidebar .user-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+        position: relative;
+      }
+
+      .sidebar .user-info img {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        object-fit: cover;
+        border: 2px solid #4b6cb7;
+      }
+
+      .sidebar .user-info .edit-icon {
+        position: absolute;
+        top: 48px;
+        right: 5px;
+        background: #4b6cb7;
+        border-radius: 50%;
+        padding: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .sidebar .user-info .edit-icon svg {
+        width: 16px;
+        height: 16px;
+        stroke: #ffffff;
+      }
+
+      .sidebar .user-info .user-details h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #333333;
+      }
+
+      .sidebar .user-info .user-details p {
+        font-size: 0.875rem;
+        color: #666666;
+        font-weight: 500;
+      }
+
+      .sidebar nav ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .sidebar nav ul li {
+        margin-bottom: 0.5rem;
+      }
+
+      .sidebar nav ul li a {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0.75rem;
+        color: #333333;
+        text-decoration: none;
+        border-radius: 0.375rem;
+        font-size: 0.95rem;
+        background: #f0f2f5;
+        transition: background-color 0.2s;
+        position: relative;
+      }
+
+      .sidebar nav ul li a.active {
+        background: #4b6cb7;
+        color: #ffffff;
+      }
+
+      .sidebar nav ul li a svg {
+        width: 1.125rem;
+        height: 1.125rem;
+        margin-right: 0.5rem;
+        stroke: currentColor;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .info-sub-buttons,
+      .class-sub-buttons,
+      .exercise-sub-buttons,
+      .account-sub-buttons {
+        display: none;
+        margin-left: 1.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .info-sub-buttons a,
+      .class-sub-buttons a,
+      .exercise-sub-buttons a,
+      .account-sub-buttons a {
+        display: flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
+        color: #333333;
+        text-decoration: none;
+        background: #e0e7ff;
+        border-radius: 0.25rem;
+        margin-bottom: 0.5rem;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      .info-sub-buttons a:hover,
+      .class-sub-buttons a:hover,
+      .exercise-sub-buttons a:hover,
+      .account-sub-buttons a:hover {
+        background-color: #c7d2fe;
+        color: #1e40af;
+      }
+      .info-sub-buttons a svg,
+      .class-sub-buttons a svg,
+      .exercise-sub-buttons a svg,
+      .account-sub-buttons a svg {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+        stroke: currentColor;
+      }
+
+      .main-content {
+        margin-left: 280px;
+        min-height: 100vh;
+        padding: 1.5rem;
+        padding-top: 70px;
+        overflow-y: hidden;
+      }
+
+      header {
+        background: #4b6cb7;
+        color: #ffffff;
+        padding: 1rem 2rem;
+        position: fixed;
+        top: 0;
+        left: 280px;
+        right: 0;
+        z-index: 40;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 60px;
+      }
+
+      header button {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        cursor: pointer;
+      }
+
+      .back-btn {
+        color: #ffffff;
+      }
+
+      .logout-btn {
+        color: #ffffff;
+      }
+
+      .form-container {
+        max-width: 700px; /* Tăng chiều rộng tối đa */
+        margin: 0 auto;
+        padding: 2.5rem; /* Tăng padding */
+        background-color: #ffffff;
+        border-radius: 1rem; /* Bo góc mềm hơn */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Bóng nhẹ hơn */
+        border: 1px solid #e5e7eb;
+      }
+
+      .form-group {
+        margin-bottom: 2rem; /* Tăng khoảng cách giữa các nhóm */
+      }
+
+      .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.75rem; /* Tăng khoảng cách dưới nhãn */
+        color: #374151;
+        font-size: 1.1rem; /* Tăng kích thước chữ nhãn */
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 1rem; /* Tăng padding input */
+        border: 1px solid #d1d5db; /* Viền đậm hơn một chút */
+        border-radius: 0.5rem; /* Bo góc mềm hơn */
+        font-size: 1.1rem; /* Tăng kích thước chữ input */
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Thêm bóng nhẹ */
+        transition: border-color 0.2s ease;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        border-color: #3b82f6; /* Viền xanh khi focus */
+        outline: none;
+      }
+
+      .form-group input[type="file"] {
+        padding: 0.5rem; /* Giảm padding cho input file */
+        font-size: 1rem; /* Kích thước chữ nhỏ hơn một chút cho input file */
+      }
+
+      .form-group input:disabled,
+      .form-group select:disabled {
+        background-color: #f3f4f6;
+        color: #6b7280;
+        cursor: not-allowed;
+      }
+
+      button#saveChanges {
+        background-color: #3b82f6;
+        color: #ffffff;
+        padding: 1rem 2rem; /* Tăng kích thước nút */
+        border: none;
+        border-radius: 0.5rem; /* Bo góc mềm hơn */
+        font-weight: 600;
+        font-size: 1.1rem; /* Tăng kích thước chữ nút */
+        transition: background-color 0.3s ease, transform 0.1s ease; /* Thêm hiệu ứng transform */
+        width: 100%; /* Nút chiếm toàn chiều rộng */
+        cursor: pointer;
+      }
+
+      button#saveChanges:hover {
+        background-color: #2563eb;
+        transform: translateY(-1px); /* Nâng nhẹ khi hover */
+      }
+
+      button#saveChanges:active {
+        transform: translateY(0); /* Trở về vị trí ban đầu khi nhấn */
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-100 font-['Inter',sans-serif] min-h-screen flex flex-col"
+  >
+    <div class="flex mt-4">
+      <aside id="sidebar" class="sidebar">
+        <div class="user-info">
+          <img
+            id="userAvatar"
+            src="/images/default-avatar.png"
+            alt="Ảnh đại diện người dùng"
+          />
+          <a
+            href="/chinhsuathongtin"
+            class="edit-icon"
+            title="Chỉnh sửa thông tin"
+            aria-label="Chỉnh sửa thông tin cá nhân"
+            rel="noopener noreferrer"
+          >
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              ></path>
+            </svg>
+          </a>
+          <div class="user-details">
+            <h3 id="userName">Tên người dùng</h3>
+            <p id="userEmail">email@example.com</p>
+            <p id="userRole">Vai trò: Chưa xác định</p>
+          </div>
+        </div>
+        <nav>
+          <ul>
+            <li>
+              <a
+                href="#"
+                id="viewInfoSidebar"
+                class="flex items-center px-4 py-2 rounded-lg font-medium"
+                style="background-color: #f0f2f5; color: #333333"
+                aria-label="Xem thông tin"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                Xem thông tin
+              </a>
+              <div class="info-sub-buttons" id="infoSubButtons">
+                <a
+                  href="/thongtin/giangvien"
+                  class="subitem"
+                  id="teacherInfoButton"
+                  aria-label="Thông tin giảng viên"
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM12 15c-3.313 0-6 1.343-6 3v1h12v-1c0-1.657-2.687-3-6-3z"
+                    ></path>
+                  </svg>
+                  Giảng viên
+                </a>
+                <a
+                  href="/thongtin/sinhvien"
+                  class="subitem"
+                  aria-label="Thông tin sinh viên"
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM12 15c-3.313 0-6 1.343-6 3v1h12v-1c0-1.657-2.687-3-6-3z"
+                    ></path>
+                  </svg>
+                  Sinh viên
+                </a>
+              </div>
+            </li>
+            <li id="manageExerciseItem">
+              <a
+                href="#"
+                id="manageExerciseSidebar"
+                class="flex items-center px-4 py-2 rounded-lg font-medium"
+                style="background-color: #f0f2f5; color: #333333"
+                aria-label="Quản lý bài tập"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  ></path>
+                </svg>
+                Quản lý bài tập
+              </a>
+              <div class="exercise-sub-buttons" id="exerciseSubButtons">
+                <a href="/taoBT" class="subitem" aria-label="Tạo bài tập">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    ></path>
+                  </svg>
+                  Tạo bài tập
+                </a>
+                <a
+                  href="/danhsachbaitap"
+                  class="subitem"
+                  aria-label="Danh sách bài tập"
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                    ></path>
+                  </svg>
+                  Danh sách bài tập
+                </a>
+              </div>
+            </li>
+            <li id="manageClassItem">
+              <a
+                href="#"
+                id="manageClassSidebar"
+                class="flex items-center px-4 py-2 rounded-lg font-medium"
+                style="background-color: #f0f2f5; color: #333333"
+                aria-label="Quản lý lớp"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 18"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  ></path>
+                </svg>
+                Quản lý lớp
+              </a>
+              <div class="class-sub-buttons" id="classSubButtons">
+                <a href="/taolophoc" class="subitem" aria-label="Tạo lớp học">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    ></path>
+                  </svg>
+                  Tạo lớp học
+                </a>
+                <a
+                  href="/danhsachlop"
+                  class="subitem"
+                  aria-label="Danh sách lớp"
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                    ></path>
+                  </svg>
+                  Danh sách lớp
+                </a>
+              </div>
+            </li>
+
+            <li>
+              <a
+                href="/timkiemlophoc"
+                id="searchClassSidebar"
+                class="flex items-center px-4 py-2 rounded-lg font-medium"
+                style="background-color: #f0f2f5; color: #333333"
+                aria-label="Tìm kiếm lớp học"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  ></path>
+                </svg>
+                Tìm kiếm lớp học
+              </a>
+            </li>
+
+            <li id="manageAccountItem">
+              <a
+                href="#"
+                id="manageAccountSidebar"
+                class="flex items-center px-4 py-2 rounded-lg font-medium"
+                style="background-color: #f0f2f5; color: #333333"
+                aria-label="Quản lý tài khoản"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  ></path>
+                </svg>
+                Quản lý tài khoản
+              </a>
+              <div class="account-sub-buttons" id="accountSubButtons">
+                <a
+                  href="/themgiangvien"
+                  class="subitem"
+                  id="addTeacherButton"
+                  aria-label="Thêm giảng viên"
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM12 15c-3.313 0-6 1.343-6 3v1h12v-1c0-1.657-2.687-3-6-3z"
+                    ></path>
+                  </svg>
+                  Thêm giảng viên
+                </a>
+                <a
+                  href="/themsinhvien"
+                  class="subitem"
+                  id="addStudentButton"
+                  aria-label="Thêm sinh viên"
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM12 15c-3.313 0-6 1.343-6 3v1h12v-1c0-1.657-2.687-3-6-3z"
+                    ></path>
+                  </svg>
+                  Thêm sinh viên
+                </a>
+              </div>
+            </li>
+            <!-- Thêm vào ngay sau </li> của Đổi mật khẩu -->
+            <li>
+              <a
+                href="/lophoc.html"
+                id="classListSidebar"
+                class="flex items-center px-4 py-2 rounded-lg font-medium"
+                style="background-color: #f0f2f5; color: #333333"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  ></path>
+                </svg>
+                Lớp học
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main id="mainContent" class="main-content flex-1">
+        <header>
+          <div class="flex items-center space-x-2">
+            <button
+              id="homeButton"
+              class="back-btn"
+              onclick="window.location.href='/';"
+            >
+              <svg
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style="width: 1.25rem; height: 1.25rem"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                ></path>
+              </svg>
+              Quay lại Trang chính
+            </button>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span
+              id="userRoleHeader"
+              class="text-white font-medium hidden"
+            ></span>
+            <button
+              id="loginButton"
+              class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition flex items-center hidden"
+            >
+              <svg
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style="width: 1.25rem; height: 1.25rem"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                ></path>
+              </svg>
+              Đăng nhập
+            </button>
+            <button
+              id="logoutButton"
+              class="logout-btn bg-red-600 hover:bg-red-700"
+            >
+              <svg
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style="width: 1.25rem; height: 1.25rem"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 16l-4-4m0 0l-4-4m4 4H7m5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h3a3 3 0 013 3v1"
+                ></path>
+              </svg>
+              Đăng xuất
+            </button>
+          </div>
+        </header>
+
+        <div class="form-container">
+          <h2 class="text-3xl font-semibold text-gray-800 mb-8">
+            Chỉnh sửa thông tin cá nhân
+          </h2>
+          <div class="form-group">
+            <label for="editUserEmail">Email (dùng để đăng nhập)</label>
+            <input
+              type="email"
+              id="editUserEmail"
+              value="email@example.com"
+              disabled
+            />
+          </div>
+          <div class="form-group">
+            <label for="editUserName">Tên hiển thị</label>
+            <input type="text" id="editUserName" value="Tên người dùng" />
+          </div>
+          <div class="form-group">
+            <label for="editUserRole">Vai trò</label>
+            <select id="editUserRole" disabled>
+              <option value="QuanTri">QuanTri</option>
+              <option value="GiangVien">GiangVien</option>
+              <option value="SinhVien">SinhVien</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editUserAvatar">Ảnh đại diện</label>
+            <input type="file" id="editUserAvatar" accept="image/*" />
+            <img
+              id="previewAvatar"
+              src="/images/default-avatar.png"
+              alt="Avatar Preview"
+              style="
+                margin-top: 0.75rem;
+                width: 80px; /* Tăng kích thước ảnh preview */
+                height: 80px;
+                border-radius: 50%;
+                border: 1px solid #e5e7eb; /* Thêm viền nhẹ */
+              "
+            />
+          </div>
+          <button id="saveChanges">Lưu thay đổi</button>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      async function refreshToken() {
+        const refreshToken = localStorage.getItem("refresh_token");
+        if (!refreshToken) {
+          throw new Error("Không có refresh token");
+        }
+
+        const response = await fetch("http://127.0.0.1:8000/refresh_token", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `refresh_token=${encodeURIComponent(refreshToken)}`,
+        });
+
+        console.log("Refresh token response:", response.status); // Log để debug
+        if (!response.ok) {
+          throw new Error("Làm mới token thất bại");
+        }
+
+        const data = await response.json();
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("refresh_token", data.refresh_token);
+        return data.access_token;
+      }
+
+      async function initializePage() {
+        let token = localStorage.getItem("access_token");
+        console.log("Token from localStorage:", token); // Log để kiểm tra token
+        if (!token) {
+          alert("Vui lòng đăng nhập để tiếp tục!");
+          window.location.href = "/";
+          return;
+        }
+
+        try {
+          const response = await fetch("http://127.0.0.1:8000/check_token", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!response.ok) {
+            token = await refreshToken(); // Làm mới token nếu cần
+            localStorage.setItem("access_token", token);
+          }
+          const data = await response.json();
+          console.log("Data from check_token:", data); // Log để kiểm tra dữ liệu từ API
+
+          // Hiển thị thông tin người dùng từ bảng nguoi_dung
+          document.getElementById("editUserEmail").value =
+            data.email || "email@example.com";
+          document.getElementById("editUserName").value =
+            data.ten_dang_nhap || "Tên người dùng";
+          const userRoleSelect = document.getElementById("editUserRole");
+          userRoleSelect.value = data.vai_tro || "SinhVien"; // Đảm bảo giá trị hợp lệ
+          if (!["QuanTri", "GiangVien", "SinhVien"].includes(data.vai_tro)) {
+            console.warn(
+              "Vai trò không hợp lệ, sử dụng giá trị mặc định:",
+              data.vai_tro
+            );
+            userRoleSelect.value = "SinhVien"; // Giá trị mặc định nếu không hợp lệ
+          }
+          const defaultAvatar = data.anh_dai_dien
+            ? `http://127.0.0.1:8000${data.anh_dai_dien}`
+            : "/images/default-avatar.png";
+          document.getElementById("previewAvatar").src = defaultAvatar;
+          document.getElementById("userAvatar").src = defaultAvatar;
+          document.getElementById("userName").textContent =
+            data.ten_dang_nhap || "Tên người dùng";
+          document.getElementById("userEmail").textContent =
+            data.email || "email@example.com";
+          document.getElementById("userRole").textContent = `Vai trò: ${
+            data.vai_tro || "Chưa xác định"
+          }`;
+          document.getElementById("userRoleHeader").textContent = `Vai trò: ${
+            data.vai_tro || "Chưa xác định"
+          }`;
+          document.getElementById("userRoleHeader").classList.remove("hidden");
+
+          // Lưu tất cả thông tin vào localStorage, bao gồm ma_nguoi_dung
+          localStorage.setItem("ma_nguoi_dung", data.ma_nguoi_dung || "");
+          localStorage.setItem("userAvatar", defaultAvatar);
+          localStorage.setItem(
+            "display_name",
+            data.ten_dang_nhap || "Tên người dùng"
+          );
+          localStorage.setItem(
+            "ten_dang_nhap",
+            data.ten_dang_nhap || "email@example.com"
+          );
+          localStorage.setItem("email", data.email || "email@example.com");
+          localStorage.setItem("vai_tro", data.vai_tro || "SinhVien");
+
+          // Điều chỉnh quyền truy cập dựa trên vai_tro
+          if (data.vai_tro === "SinhVien") {
+            document
+              .getElementById("manageExerciseItem")
+              .classList.add("hidden");
+            document.getElementById("manageClassItem").classList.add("hidden");
+            document.getElementById("addTeacherButton").classList.add("hidden");
+            document.getElementById("addStudentButton").classList.add("hidden");
+            document.getElementById("viewInfoSidebar").classList.add("hidden"); // Ẩn "Xem thông tin"
+            document
+              .getElementById("manageAccountItem")
+              .classList.add("hidden"); // Ẩn "Quản lý tài khoản"
+          } else if (data.vai_tro === "GiangVien") {
+            document.getElementById("addTeacherButton").classList.add("hidden");
+            document.getElementById("classListSidebar").classList.add("hidden"); // Thêm dòng này để ẩn "Lớp học"
+            // Không ẩn addStudentButton để GiangVien có thể truy cập
+          } else if (data.vai_tro === "QuanTri") {
+            // Không ẩn gì cho QuanTri
+          }
+
+          // Làm mờ nút "Giảng viên" nếu vai trò là GiangVien
+          const teacherInfoButton =
+            document.getElementById("teacherInfoButton");
+          if (teacherInfoButton && data.vai_tro === "GiangVien") {
+            teacherInfoButton.classList.add("opacity-50");
+          }
+        } catch (error) {
+          console.error("Lỗi tải thông tin:", error);
+          alert("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại!");
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          window.location.href = "/";
+        }
+      }
+
+      // Xử lý sự kiện chọn ảnh đại diện
+      document
+        .getElementById("editUserAvatar")
+        .addEventListener("change", function (event) {
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              document.getElementById("previewAvatar").src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
+      // Xử lý sự kiện lưu thay đổi
+      document
+        .getElementById("saveChanges")
+        .addEventListener("click", function () {
+          const avatarInput = document.getElementById("editUserAvatar");
+          const token = localStorage.getItem("access_token");
+          const ma_nguoi_dung = localStorage.getItem("ma_nguoi_dung");
+          const ten_dang_nhap = document.getElementById("editUserName").value;
+          const email = document.getElementById("editUserEmail").value; // Lấy email hiện tại
+
+          const formData = new FormData();
+          formData.append("ma_nguoi_dung", ma_nguoi_dung || "");
+          formData.append("ten_dang_nhap", ten_dang_nhap || "");
+          formData.append("email", email || "");
+          formData.append("display_name", ten_dang_nhap || ""); // Sử dụng ten_dang_nhap làm display_name
+          if (avatarInput.files[0]) {
+            formData.append("file", avatarInput.files[0]);
+          }
+
+          fetch("http://127.0.0.1:8000/users/", {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          })
+            .then((response) => {
+              if (!response.ok) {
+                return response.text().then((text) => {
+                  try {
+                    const errorData = JSON.parse(text);
+                    let errorMessage = "Lỗi không xác định từ server";
+                    if (errorData.detail) {
+                      errorMessage = errorData.detail;
+                    }
+                    throw new Error(errorMessage);
+                  } catch (e) {
+                    throw new Error(text || "Lỗi server không xác định");
+                  }
+                });
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (avatarInput.files[0] || ten_dang_nhap || email) {
+                if (data.anh_dai_dien) {
+                  document.getElementById(
+                    "userAvatar"
+                  ).src = `http://127.0.0.1:8000${data.anh_dai_dien}`; // Cập nhật ảnh sidebar
+                  document.getElementById(
+                    "previewAvatar"
+                  ).src = `http://127.0.0.1:8000${data.anh_dai_dien}`; // Cập nhật ảnh preview
+                  localStorage.setItem(
+                    "userAvatar",
+                    `http://127.0.0.1:8000${data.anh_dai_dien}`
+                  ); // Lưu đường dẫn tuyệt đối
+                }
+                if (ten_dang_nhap) {
+                  document.getElementById("userName").textContent =
+                    ten_dang_nhap;
+                  localStorage.setItem("display_name", ten_dang_nhap);
+                }
+                if (email) {
+                  document.getElementById("userEmail").textContent = email;
+                  localStorage.setItem("email", email);
+                }
+                window.dispatchEvent(new Event("userAvatarUpdated"));
+              }
+              alert("Cập nhật thông tin thành công!");
+            })
+            .catch((error) => {
+              console.error("Lỗi chi tiết:", error);
+              alert("Lỗi: " + (error.message || "Lỗi không xác định"));
+            });
+        });
+
+      // Xử lý sự kiện đăng xuất
+      document
+        .getElementById("logoutButton")
+        .addEventListener("click", function () {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          localStorage.removeItem("ma_nguoi_dung");
+          localStorage.removeItem("ten_dang_nhap");
+          localStorage.removeItem("display_name");
+          localStorage.removeItem("userAvatar");
+          localStorage.removeItem("email");
+          localStorage.removeItem("vai_tro");
+          window.location.href = "/";
+        });
+
+      // Xử lý sự kiện nhấp vào biểu tượng chỉnh sửa
+      document
+        .querySelector(".edit-icon")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          window.location.href = "/chinhsuathongtin";
+        });
+
+      // Đồng bộ sau khi cập nhật avatar
+      window.addEventListener("userAvatarUpdated", () => {
+        const token = localStorage.getItem("access_token");
+        if (token) {
+          fetch("http://127.0.0.1:8000/check_token", {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              const newAvatar =
+                data.anh_dai_dien || "/images/default-avatar.png";
+              document.getElementById("userAvatar").src = newAvatar;
+              document.getElementById("previewAvatar").src = newAvatar;
+              document.getElementById("editUserEmail").value =
+                data.email || "email@example.com";
+              document.getElementById("editUserName").value =
+                data.ten_dang_nhap || "Tên người dùng";
+              const userRoleSelect = document.getElementById("editUserRole");
+              userRoleSelect.value = data.vai_tro || "SinhVien"; // Sử dụng trực tiếp giá trị từ API
+              if (
+                !["QuanTri", "GiangVien", "SinhVien"].includes(data.vai_tro)
+              ) {
+                console.warn(
+                  "Vai trò không hợp lệ, sử dụng giá trị mặc định:",
+                  data.vai_tro
+                );
+                userRoleSelect.value = "SinhVien"; // Giá trị mặc định nếu không hợp lệ
+              }
+              document.getElementById("userRole").textContent = `Vai trò: ${
+                data.vai_tro || "Chưa xác định"
+              }`;
+              document.getElementById(
+                "userRoleHeader"
+              ).textContent = `Vai trò: ${data.vai_tro || "Chưa xác định"}`;
+              localStorage.setItem("ma_nguoi_dung", data.ma_nguoi_dung || "");
+              localStorage.setItem("userAvatar", newAvatar);
+              localStorage.setItem(
+                "display_name",
+                data.ten_dang_nhap || "Tên người dùng"
+              );
+              localStorage.setItem(
+                "ten_dang_nhap",
+                data.ten_dang_nhap || "email@example.com"
+              );
+              localStorage.setItem("email", data.email || "email@example.com");
+              localStorage.setItem("vai_tro", data.vai_tro || "SinhVien");
+            })
+            .catch((error) => {
+              console.error("Lỗi cập nhật thông tin:", error);
+            });
+        }
+      });
+
+      // Hàm điều hướng với kiểm tra vai trò
+      function navigateWithRoleCheck(event, url, roleCheck) {
+        event.preventDefault();
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+          alert("Vui lòng đăng nhập để tiếp tục!");
+          window.location.href = "/";
+          return;
+        }
+        fetch("http://127.0.0.1:8000/check_token", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then((response) => {
+            console.log("Response from check_token:", response.status); // Log để debug
+            return response.json();
+          })
+          .then((data) => {
+            console.log("Data from check_token:", data); // Log dữ liệu
+            if (roleCheck(data.vai_tro)) {
+              window.location.href = url;
+            } else {
+              alert("Bạn không có quyền truy cập!");
+            }
+          })
+          .catch((error) => {
+            console.error("Lỗi kiểm tra token:", error);
+            alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!");
+            localStorage.removeItem("access_token");
+            window.location.href = "/";
+          });
+      }
+
+      // Xử lý sự kiện cho các nút điều hướng
+      document.addEventListener("DOMContentLoaded", () => {
+        const createExerciseLink = document.querySelector(
+          '.exercise-sub-buttons a[href="/taoBT"]'
+        );
+        const exerciseListLink = document.querySelector(
+          '.exercise-sub-buttons a[href="/danhsachbaitap"]'
+        );
+        const createClassLink = document.querySelector(
+          '.class-sub-buttons a[href="/taolophoc"]'
+        );
+        const classListLink = document.querySelector(
+          '.class-sub-buttons a[href="/danhsachlop"]'
+        );
+        const addTeacherLink = document.querySelector(
+          '.account-sub-buttons a[href="/themgiangvien"]'
+        );
+        const addStudentLink = document.querySelector(
+          '.account-sub-buttons a[href="/themsinhvien"]'
+        );
+        const searchClassSidebar =
+          document.getElementById("searchClassSidebar");
+        const viewInfoSidebar = document.getElementById("viewInfoSidebar");
+        const manageExerciseSidebar = document.getElementById(
+          "manageExerciseSidebar"
+        );
+        const manageClassSidebar =
+          document.getElementById("manageClassSidebar");
+        const manageAccountSidebar = document.getElementById(
+          "manageAccountSidebar"
+        );
+
+        // Toggle sub-buttons
+        if (viewInfoSidebar) {
+          viewInfoSidebar.onclick = (e) => {
+            e.preventDefault();
+            const infoSubButtons = document.getElementById("infoSubButtons");
+            infoSubButtons.style.display =
+              infoSubButtons.style.display === "block" ? "none" : "block";
+            const vaiTro = localStorage.getItem("vai_tro");
+            const teacherInfoButton =
+              document.getElementById("teacherInfoButton");
+            if (teacherInfoButton) {
+              if (vaiTro === "GiangVien") {
+                teacherInfoButton.classList.add("hidden");
+              } else {
+                teacherInfoButton.classList.remove("hidden");
+              }
+            }
+          };
+        }
+        if (manageExerciseSidebar) {
+          manageExerciseSidebar.onclick = (e) => {
+            e.preventDefault();
+            const vaiTro = localStorage.getItem("vai_tro");
+            if (vaiTro === "SinhVien") {
+              alert("Bạn không có quyền truy cập!");
+              return;
+            }
+            const exerciseSubButtons =
+              document.getElementById("exerciseSubButtons");
+            console.log("Toggling exerciseSubButtons:", exerciseSubButtons); // Log để debug
+            exerciseSubButtons.style.display =
+              exerciseSubButtons.style.display === "block" ? "none" : "block";
+          };
+        }
+        if (manageClassSidebar) {
+          manageClassSidebar.onclick = (e) => {
+            e.preventDefault();
+            const classSubButtons = document.getElementById("classSubButtons");
+            classSubButtons.style.display =
+              classSubButtons.style.display === "block" ? "none" : "block";
+          };
+        }
+        if (manageAccountSidebar) {
+          manageAccountSidebar.onclick = (e) => {
+            e.preventDefault();
+            const accountSubButtons =
+              document.getElementById("accountSubButtons");
+            const infoSubButtons = document.getElementById("infoSubButtons");
+            const exerciseSubButtons =
+              document.getElementById("exerciseSubButtons");
+            const manageAccountSidebar = document.getElementById(
+              "manageAccountSidebar"
+            );
+
+            if (accountSubButtons.style.display === "block") {
+              accountSubButtons.style.display = "none";
+              manageAccountSidebar.classList.remove("active");
+              manageAccountSidebar.style.backgroundColor = "#f0f2f5";
+              manageAccountSidebar.style.color = "#333333";
+            } else {
+              accountSubButtons.style.display = "block";
+              if (infoSubButtons) infoSubButtons.style.display = "none";
+              if (exerciseSubButtons) exerciseSubButtons.style.display = "none";
+              // Không ẩn classSubButtons để giữ hiển thị các nút con của "Quản lý lớp"
+              manageAccountSidebar.classList.add("active");
+              manageAccountSidebar.style.backgroundColor = "#4b6cb7";
+              manageAccountSidebar.style.color = "#ffffff";
+            }
+          };
+        }
+
+        // Kiểm tra vai trò cho các liên kết
+        if (createExerciseLink) {
+          console.log("createExerciseLink found:", createExerciseLink); // Log để debug
+          createExerciseLink.onclick = (e) =>
+            navigateWithRoleCheck(
+              e,
+              "/taoBT",
+              (role) => role === "GiangVien" || role === "QuanTri"
+            );
+        } else {
+          console.warn("Không tìm thấy createExerciseLink!");
+        }
+        if (exerciseListLink) {
+          exerciseListLink.onclick = (e) =>
+            navigateWithRoleCheck(
+              e,
+              "/danhsachbaitap",
+              (role) => role === "GiangVien" || role === "QuanTri"
+            );
+        }
+        if (createClassLink) {
+          createClassLink.onclick = (e) =>
+            navigateWithRoleCheck(
+              e,
+              "/taolophoc",
+              (role) => role === "GiangVien" || role === "QuanTri"
+            );
+        }
+        if (classListLink) {
+          classListLink.onclick = (e) =>
+            navigateWithRoleCheck(
+              e,
+              "/danhsachlop",
+              (role) => role === "GiangVien" || role === "QuanTri"
+            );
+        }
+        if (addTeacherLink) {
+          addTeacherLink.onclick = (e) =>
+            navigateWithRoleCheck(
+              e,
+              "/themgiangvien",
+              (role) => role === "QuanTri"
+            );
+        }
+        if (addStudentLink) {
+          addStudentLink.onclick = (e) =>
+            navigateWithRoleCheck(
+              e,
+              "/themsinhvien",
+              (role) => role === "QuanTri" || role === "GiangVien"
+            );
+        }
+
+        // Xử lý "Tìm kiếm lớp học"
+        if (searchClassSidebar) {
+          searchClassSidebar.onclick = (e) => {
+            e.preventDefault();
+            window.location.href = "/timkiemlophoc";
+          };
+        }
+
+        // Gọi initializePage khi trang tải
+        initializePage();
+      });
+    </script>
+  </body>
+</html>

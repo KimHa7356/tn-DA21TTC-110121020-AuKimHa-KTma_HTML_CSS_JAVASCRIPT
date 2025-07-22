@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+
+#htmlEditor {
+  @apply h-[600px] rounded-lg shadow-md overflow-auto;
+}
+
+.modal {
+  @apply hidden fixed inset-0 w-full h-full bg-black/50 flex items-center justify-center z-50;
+}
+
+.loading::after {
+  content: "";
+  @apply inline-block w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin ml-2;
+}
+
+.btn {
+  @apply transition-all duration-200 ease-in-out;
+}
+.btn:hover {
+  @apply scale-105 shadow-md;
+}
+
+table {
+  @apply w-full border-collapse;
+}
+
+th,
+td {
+  @apply p-3 text-left border-b text-sm;
+  border-color: #e5e7eb;
+}
+
+th {
+  @apply bg-gray-50 font-semibold text-gray-900;
+}
+
+tr:hover {
+  @apply bg-gray-100 cursor-pointer;
+}
+
+html,
+body {
+  @apply h-full m-0 p-0 overflow-auto;
+}
+
+.full-screen-container {
+  @apply min-h-screen flex flex-col;
+}
+
+.editor-container {
+  @apply flex-1;
+}
+
+.monaco-editor .errorHighlight {
+  background: rgba(255, 0, 0, 0.3) !important;
+  border-left: 4px solid red !important;
+  z-index: 10;
+}
+
+@tailwind utilities;

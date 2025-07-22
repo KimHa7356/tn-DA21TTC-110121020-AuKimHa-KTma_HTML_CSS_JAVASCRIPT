@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chi tiết Bài tập</title>
+    <link rel="stylesheet" href="/public/output.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=block"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background-color: #f5f6fa;
+        color: #333333;
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .sidebar {
+        width: 280px;
+        background: #ffffff;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        padding: 2rem;
+        border-right: 1px solid #e5e7eb;
+        overflow-y: auto;
+        z-index: 50;
+      }
+      .sidebar .user-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.1rem;
+        border-bottom: 1px solid #e5e7eb;
+        position: relative;
+      }
+      .sidebar .user-info img {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        object-fit: cover;
+        border: 2px solid #4b6cb7;
+      }
+      .sidebar .user-info .edit-icon {
+        position: absolute;
+        top: 48px;
+        right: 5px;
+        background: #4b6cb7;
+        border-radius: 50%;
+        padding: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .sidebar .user-info .edit-icon svg {
+        width: 16px;
+        height: 16px;
+        stroke: #ffffff;
+      }
+      .sidebar .user-info .user-details h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #333333;
+        margin-bottom: 0.5rem;
+      }
+      .sidebar .user-info .user-details p {
+        font-size: 0.875rem;
+        color: #666666;
+        font-weight: 500;
+      }
+      .sidebar nav ul {
+        list-style: none;
+        padding: 0;
+      }
+      .sidebar nav ul li {
+        margin-bottom: 0.5rem;
+        position: relative;
+      }
+      .sidebar nav ul li a {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0.75rem;
+        color: #333333;
+        text-decoration: none;
+        border-radius: 0.375rem;
+        font-size: 0.95rem;
+        background: #f0f2f5;
+        transition: background-color 0.2s;
+      }
+      .sidebar nav ul li a.active {
+        background: #4b6cb7;
+        color: #ffffff;
+      }
+      .sidebar nav ul li a svg {
+        width: 1.125rem;
+        height: 1.125rem;
+        margin-right: 0.5rem;
+        stroke: currentColor;
+      }
+      .info-sub-buttons {
+        display: none;
+        margin-left: 1.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .info-sub-buttons a {
+        display: flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
+        color: #333333;
+        text-decoration: none;
+        background: #e0e7ff;
+        border-radius: 0.25rem;
+        margin-bottom: 0.5rem;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      .info-sub-buttons a:hover {
+        background-color: #c7d2fe;
+        color: #1e40af;
+      }
+      .info-sub-buttons a.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+        cursor: not-allowed;
+      }
+      .info-sub-buttons a svg {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+        stroke: currentColor;
+      }
+      .class-sub-buttons {
+        display: none;
+        margin-left: 1.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .class-sub-buttons a {
+        display: flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
+        color: #333333;
+        text-decoration: none;
+        background: #e0e7ff;
+        border-radius: 0.25rem;
+        margin-bottom: 0.5rem;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      .class-sub-buttons a:hover {
+        background-color: #c7d2fe;
+        color: #1e40af;
+      }
+      .class-sub-buttons a.active {
+        background: #4b6cb7;
+        color: #ffffff;
+      }
+      .class-sub-buttons a svg {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+        stroke: currentColor;
+      }
+      .exercise-sub-buttons {
+        display: none;
+        margin-left: 1.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .exercise-sub-buttons a {
+        display: flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
+        color: #333333;
+        text-decoration: none;
+        background: #e0e7ff;
+        border-radius: 0.25rem;
+        margin-bottom: 0.5rem;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      .exercise-sub-buttons a:hover {
+        background-color: #c7d2fe;
+        color: #1e40af;
+      }
+      .exercise-sub-buttons a svg {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+        stroke: currentColor;
+      }
+      header {
+        background: #4b6cb7;
+        color: #ffffff;
+        padding: 1rem 2rem;
+        position: fixed;
+        top: 0;
+        left: 280px;
+        right: 0;
+        z-index: 40;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 60px;
+      }
+      header button {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        cursor: pointer;
+      }
+      .back-btn {
+        color: #ffffff;
+      }
+      .logout-btn {
+        color: #ffffff;
+        background: #ef4444;
+      }
+      .success-message,
+      .error-message {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        z-index: 1000;
+        display: none;
+      }
+      .success-message {
+        background-color: #d1fae5;
+        color: #065f46;
+      }
+      .error-message {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+      .success-message:not(.hidden),
+      .error-message:not(.hidden) {
+        display: block;
+      }
+      .main-content {
+        margin-left: 280px;
+        padding: 2rem;
+        margin-top: 60px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        padding: 2.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      }
+      h1 {
+        font-size: 2.1rem !important;
+        font-weight: 700;
+        text-align: center;
+        color: #1e293b;
+        margin-bottom: 2.5rem;
+        letter-spacing: -0.025em;
+        position: relative;
+      }
+      .detail-section {
+        padding: 2.5rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        background: linear-gradient(to bottom, #f9fafb, #ffffff);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease-in-out;
+        position: relative;
+      }
+      .detail-section:hover {
+        transform: translateY(-2px);
+      }
+      .detail-grid {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 2rem;
+        align-items: start;
+      }
+      .detail-grid p {
+        margin: 0.75rem 0;
+        font-size: 1rem;
+        color: #374151;
+        line-height: 1.6;
+      }
+      .detail-grid strong {
+        color: #1e40af;
+        font-weight: 600;
+        display: block;
+        text-align: right;
+      }
+      .detail-grid span {
+        background: #f1f5f9;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.375rem;
+        display: inline-block;
+        width: 100%;
+        word-break: break-word;
+      }
+      .submit-button {
+        display: none;
+        position: absolute;
+        top: -50px;
+        right: 2.5rem;
+      }
+      .submit-button button {
+        background-color: #4b6cb7;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        font-weight: 500;
+      }
+      .submit-button button:hover {
+        background-color: #3b55a0;
+      }
+      .teacher-submit-button {
+        display: none;
+        position: absolute;
+        top: -50px;
+        right: 2.5rem;
+      }
+      .teacher-submit-button button {
+        background-color: #4b6cb7;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        font-weight: 500;
+      }
+      .teacher-submit-button button:hover {
+        background-color: #3b55a0;
+      }
+      .submission-section {
+        margin-top: 2rem;
+        padding: 2.5rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        background: linear-gradient(to bottom, #f9fafb, #ffffff);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease-in-out;
+      }
+      .submission-section:hover {
+        transform: translateY(-2px);
+      }
+      .submission-section h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+      }
+      .submission-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .submission-table th,
+      .submission-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .submission-table th {
+        background-color: #f1f5f9;
+        font-weight: 600;
+        color: #1e40af;
+      }
+      .submission-table td {
+        color: #374151;
+      }
+      .submission-table .status-submitted {
+        color: #065f46;
+        font-weight: 500;
+      }
+      .submission-table .status-late {
+        color: #991b1b;
+        font-weight: 500;
+      }
+      .submission-table .status-not-submitted {
+        color: #666666;
+        font-weight: 500;
+      }
+      .submission-table td:nth-child(4) {
+        color: #374151;
+        font-weight: 500;
+      }
+      .submission-stats {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #f1f5f9;
+        border-radius: 0.375rem;
+        border: 1px solid #e5e7eb;
+      }
+      .submission-stats p {
+        margin: 0.5rem 0;
+        font-size: 1rem;
+        color: #374151;
+      }
+      .submission-stats strong {
+        color: #1e40af;
+        font-weight: 600;
+      }
+      .submission-stats span {
+        font-weight: 500;
+      }
+      .student-list-section {
+        margin-top: 2rem;
+        padding: 2.5rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        background: linear-gradient(to bottom, #f9fafb, #ffffff);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease-in-out;
+      }
+      .student-list-section:hover {
+        transform: translateY(-2px);
+      }
+      .student-list-section h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+      }
+      .student-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .student-table th,
+      .student-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .student-table th {
+        background-color: #f1f5f9;
+        font-weight: 600;
+        color: #1e40af;
+      }
+      .student-table td {
+        color: #374151;
+      }
+      .student-table .status-active {
+        color: #065f46;
+        font-weight: 500;
+      }
+      .student-table .status-inactive {
+        color: #991b1b;
+        font-weight: 500;
+      }
+      @media (max-width: 768px) {
+        .student-list-section {
+          padding: 1.5rem;
+        }
+        .student-table {
+          font-size: 0.9rem;
+        }
+      }
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 100%;
+          height: auto;
+          position: relative;
+        }
+        header {
+          left: 0;
+        }
+        .main-content {
+          margin-left: 0;
+        }
+        .container {
+          padding: 1.5rem;
+        }
+        .detail-section {
+          padding: 1.5rem;
+        }
+        .detail-grid {
+          grid-template-columns: 1fr;
+          gap: 1.25rem;
+        }
+        .detail-grid strong {
+          text-align: left;
+        }
+        .detail-grid span {
+          padding: 0.75rem;
+        }
+        .submit-button {
+          position: static;
+          margin-bottom: 1rem;
+          top: 0;
+          right: 0;
+        }
+        .teacher-submit-button {
+          position: static;
+          margin-bottom: 1rem;
+          top: 0;
+          right: 0;
+        }
+        .submission-section {
+          padding: 1.5rem;
+        }
+        .submission-table {
+          font-size: 0.9rem;
+        }
+        .submission-stats {
+          padding: 0.75rem;
+        }
+      }
+    </style>
+  </head>
+  <body class="font-['Inter',sans-serif] min-h-screen">
+    <div id="successMessage" class="success-message hidden"></div>
+    <div id="errorMessage" class="error-message hidden"></div>
+
+    <aside id="sidebar" class="sidebar">
+      <div class="user-info">
+        <img
+          id="userAvatar"
+          src="https://via.placeholder.com/50"
+          alt="User Avatar"
+        />
+        <a
+          href="/chinhsuathongtin"
+          class="edit-icon"
+          title="Chỉnh sửa thông tin"
+        >
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M11 5H6a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+            ></path>
+          </svg>
+        </a>
+        <div class="user-details">
+          <h3 id="userName">Tên người dùng</h3>
+          <p id="userEmail">email@example.com</p>
+          <p id="userRole">Vai trò: Chưa xác định</p>
+        </div>
+      </div>
+
+      <nav>
+        <ul>
+          <li>
+            <a
+              href="#"
+              id="viewInfoSidebar"
+              class="flex items-center px-4 py-2 rounded-lg font-medium"
+              style="background-color: #f0f2f5; color: #333333"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              Xem thông tin
+            </a>
+            <div class="info-sub-buttons" id="infoSubButtons">
+              <a
+                href="/thongtin/giangvien"
+                class="subitem"
+                id="teacherInfoButton"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM12 15c-3.313 0-6 1.343-6 3v1h12v-1c0-1.657-2.687-3-6-3z"
+                  ></path>
+                </svg>
+                Giảng viên
+              </a>
+              <a
+                href="/thongtin/sinhvien"
+                class="subitem"
+                id="studentInfoButton"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM12 15c-3.313 0-6 1.343-6 3v1h12v-1c0-1.657-2.687-3-6-3z"
+                  ></path>
+                </svg>
+                Sinh viên
+              </a>
+            </div>
+          </li>
+          <li id="manageExerciseItem">
+            <a
+              href="#"
+              id="manageExerciseSidebar"
+              class="flex items-center px-4 py-2 rounded-lg font-medium"
+              style="background-color: #f0f2f5; color: #333333"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 22"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                ></path>
+              </svg>
+              Quản lý bài tập
+            </a>
+            <div class="exercise-sub-buttons" id="exerciseSubButtons">
+              <a href="/taoBT" class="subitem">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  ></path>
+                </svg>
+                Tạo bài tập
+              </a>
+              <a href="/danhsachbaitap" class="subitem">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                  ></path>
+                </svg>
+                Danh sách bài tập
+              </a>
+            </div>
+          </li>
+          <li id="manageClassItem">
+            <a
+              href="#"
+              id="manageClassSidebar"
+              class="flex items-center px-4 py-2 rounded-lg font-medium"
+              style="background-color: #f0f2f5; color: #333333"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                ></path>
+              </svg>
+              Quản lý lớp
+            </a>
+            <div class="class-sub-buttons" id="classSubButtons">
+              <a href="/taolophoc" class="subitem">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  ></path>
+                </svg>
+                Tạo lớp học
+              </a>
+              <a href="/danhsachlop" class="subitem">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                  ></path>
+                </svg>
+                Danh sách lớp
+              </a>
+            </div>
+          </li>
+          <li>
+            <a
+              href="/timkiemlophoc"
+              id="searchClassSidebar"
+              class="flex items-center px-4 py-2 rounded-lg font-medium"
+              style="background-color: #f0f2f5; color: #333333"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
+              </svg>
+              Tìm kiếm lớp học
+            </a>
+          </li>
+          <li>
+            <a
+              href="/lophoc.html"
+              id="classListSidebar"
+              class="flex items-center px-4 py-2 rounded-lg font-medium"
+              style="background-color: #f0f2f5; color: #333333"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                ></path>
+              </svg>
+              Lớp học
+            </a>
+          </li>
+          <li id="manageAccountItem">
+            <a
+              href="#"
+              id="manageAccountSidebar"
+              class="flex items-center px-4 py-2 rounded-lg font-medium"
+              aria-label="Quản lý tài khoản"
+            >
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                ></path>
+              </svg>
+              Quản lý tài khoản
+            </a>
+            <div class="info-sub-buttons" id="accountSubButtons">
+              <a
+                href="/themgiangvien"
+                class="subitem"
+                id="addTeacherButton"
+                aria-label="Thêm giảng viên"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM12 15c-3.313 0-6 1.343-6 3v1h12v-1c0-1.657-2.687-3-6-3z"
+                  ></path>
+                </svg>
+                Thêm giảng viên
+              </a>
+              <a
+                href="/themsinhvien"
+                class="subitem"
+                id="addStudentButton"
+                aria-label="Thêm sinh viên"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM12 15c-3.313 0-6 1.343-6 3v1h12v-1c0-1.657-2.687-3-6-3z"
+                  ></path>
+                </svg>
+                Thêm sinh viên
+              </a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <header>
+      <button id="backButton" class="back-btn">
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          ></path>
+        </svg>
+        Quay lại Trang chính
+      </button>
+      <button id="logoutButton" class="logout-btn">
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+          ></path>
+        </svg>
+        Đăng xuất
+      </button>
+    </header>
+
+    <main class="main-content">
+      <div class="container">
+        <h1>Chi tiết Bài tập</h1>
+        <button
+          id="manualDoExerciseButton"
+          style="
+            background-color: #4b6cb7;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 1rem;
+          "
+        >
+          Làm bài
+        </button>
+        <div class="detail-section">
+          <div class="submit-button" id="submitButton">
+            <button id="doExerciseButton">Làm bài</button>
+          </div>
+          <div class="teacher-submit-button" id="teacherSubmitButton">
+            <button id="teacherDoExerciseButton">Làm bài</button>
+          </div>
+          <div class="detail-grid">
+            <p><strong>Tiêu đề:</strong> <span id="tieuDe"></span></p>
+            <p><strong>Nội dung:</strong> <span id="noiDung"></span></p>
+            <p><strong>Hạn nộp:</strong> <span id="hanNop"></span></p>
+            <p><strong>Mô tả:</strong> <span id="moTa"></span></p>
+            <p><strong>Ngôn ngữ:</strong> <span id="ngonNgu"></span></p>
+            <p><strong>Lớp học:</strong> <span id="maLop"></span></p>
+            <p><strong>Trạng thái:</strong> <span id="trangThai"></span></p>
+          </div>
+        </div>
+        <div class="submission-section hidden" id="submissionSection">
+          <h2>Trạng thái nộp bài của học sinh</h2>
+          <table class="submission-table">
+            <thead>
+              <tr>
+                <th>Tên đăng nhập</th>
+                <th>Trạng thái</th>
+                <th>Thời gian nộp</th>
+                <th>Lần nộp</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody id="submissionTableBody"></tbody>
+          </table>
+          <div class="submission-stats" id="submissionStats">
+            <p>
+              <strong>Số sinh viên đã nộp bài:</strong>
+              <span id="submittedCount">0</span>
+            </p>
+            <p>
+              <strong>Số sinh viên chưa nộp bài:</strong>
+              <span id="notSubmittedCount">0</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="student-list-section" id="studentListSection">
+          <h2>Danh sách sinh viên</h2>
+          <table class="student-table">
+            <thead>
+              <tr>
+                <th>Tên hiển thị</th>
+                <th>Mã sinh viên</th>
+                <th>Email</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const roleMapping = {
+        admin: "QuanTri",
+        giang_vien: "GiangVien",
+        sinh_vien: "SinhVien",
+        QuanTri: "QuanTri",
+        GiangVien: "GiangVien",
+        SinhVien: "SinhVien",
+      };
+
+      function showSuccessMessage(message) {
+        const successMessage = document.getElementById("successMessage");
+        successMessage.textContent = message;
+        successMessage.classList.remove("hidden");
+        setTimeout(() => successMessage.classList.add("hidden"), 3000);
+      }
+
+      function showErrorMessage(message) {
+        const errorMessage = document.getElementById("errorMessage");
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("hidden");
+        setTimeout(() => errorMessage.classList.add("hidden"), 3000);
+      }
+
+      async function checkAndRefreshToken() {
+        const token = localStorage.getItem("access_token");
+        const refreshToken = localStorage.getItem("refresh_token");
+        if (!token) {
+          alert("Vui lòng đăng nhập để tiếp tục!");
+          window.location.href = "/dangnhap";
+          return null;
+        }
+        try {
+          const response = await fetch(
+            `http://127.0.0.1:8000/check_token/?_=${Date.now()}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              cache: "no-store",
+            }
+          );
+          if (!response.ok) {
+            if (response.status === 401 && refreshToken) {
+              const refreshResponse = await fetch(
+                "http://127.0.0.1:8000/refresh_token/",
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                  },
+                  body: `refresh_token=${encodeURIComponent(refreshToken)}`,
+                }
+              );
+              if (refreshResponse.ok) {
+                const data = await refreshResponse.json();
+                localStorage.setItem("access_token", data.access_token);
+                localStorage.setItem("refresh_token", data.refresh_token);
+                return data.access_token;
+              } else {
+                alert("Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại!");
+                window.location.href = "/dangnhap";
+                return null;
+              }
+            } else {
+              throw new Error("Lỗi xác thực token");
+            }
+          }
+          return token;
+        } catch (err) {
+          console.error("Lỗi kiểm tra token:", err);
+          alert("Đã xảy ra lỗi khi xác thực. Vui lòng đăng nhập lại!");
+          return null;
+        }
+      }
+
+      async function checkLoginStatus() {
+        const token = localStorage.getItem("access_token");
+        const userName = document.getElementById("userName");
+        const userEmail = document.getElementById("userEmail");
+        const userRole = document.getElementById("userRole");
+        const userAvatar = document.getElementById("userAvatar");
+        const viewInfoSidebar = document.getElementById("viewInfoSidebar");
+        const manageExerciseSidebar = document.getElementById(
+          "manageExerciseSidebar"
+        );
+        const manageClassSidebar =
+          document.getElementById("manageClassSidebar");
+        const manageExerciseItem =
+          document.getElementById("manageExerciseItem");
+        const manageClassItem = document.getElementById("manageClassItem");
+        const searchClassSidebar =
+          document.getElementById("searchClassSidebar");
+        const classListSidebar = document.getElementById("classListSidebar");
+        const backButton = document.getElementById("backButton");
+        const logoutButton = document.getElementById("logoutButton");
+        const sidebar = document.getElementById("sidebar");
+        const teacherInfoButton = document.getElementById("teacherInfoButton");
+        const studentInfoButton = document.getElementById("studentInfoButton");
+        const manageAccountSidebar = document.getElementById(
+          "manageAccountSidebar"
+        );
+        const manageAccountItem = document.getElementById("manageAccountItem");
+        const submitButton = document.getElementById("submitButton");
+        const doExerciseButton = document.getElementById("doExerciseButton");
+        const teacherSubmitButton = document.getElementById(
+          "teacherSubmitButton"
+        );
+        const teacherDoExerciseButton = document.getElementById(
+          "teacherDoExerciseButton"
+        );
+
+        if (
+          !userName ||
+          !userEmail ||
+          !userRole ||
+          !userAvatar ||
+          !viewInfoSidebar ||
+          !manageExerciseSidebar ||
+          !manageClassSidebar ||
+          !searchClassSidebar ||
+          !classListSidebar ||
+          !backButton ||
+          !logoutButton ||
+          !sidebar ||
+          !teacherInfoButton ||
+          !studentInfoButton ||
+          !manageAccountSidebar ||
+          !manageAccountItem ||
+          !submitButton ||
+          !doExerciseButton ||
+          !teacherSubmitButton ||
+          !teacherDoExerciseButton
+        ) {
+          console.error("Không tìm thấy một hoặc nhiều phần tử cần thiết.");
+          return;
+        }
+
+        if (!token) {
+          alert("Vui lòng đăng nhập để tiếp tục!");
+          window.location.href = "/";
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `http://127.0.0.1:8000/check_token/?_=${Date.now()}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              cache: "no-store",
+            }
+          );
+          if (!response.ok) {
+            throw new Error(
+              "Phiên đăng nhập không hợp lệ, vui lòng đăng nhập lại!"
+            );
+          }
+          const data = await response.json();
+          console.log("Vai trò từ server:", data.vai_tro);
+
+          data.vai_tro = roleMapping[data.vai_tro] || data.vai_tro;
+          console.log("Vai trò đã ánh xạ:", data.vai_tro);
+
+          const storedDisplayName = localStorage.getItem("display_name");
+          userName.textContent =
+            data.display_name ||
+            storedDisplayName ||
+            data.ten_dang_nhap ||
+            "Tên người dùng";
+          userEmail.textContent = data.ten_dang_nhap || "email@example.com";
+          userRole.textContent = `Vai trò: ${data.vai_tro || "Chưa xác định"}`;
+          const avatar =
+            data.avatar ||
+            localStorage.getItem("userAvatar") ||
+            `https://via.placeholder.com/50?text=${encodeURIComponent(
+              data.ten_dang_nhap || "User"
+            )}`;
+          userAvatar.src = avatar;
+
+          localStorage.setItem("userAvatar", avatar);
+          localStorage.setItem(
+            "display_name",
+            data.display_name || storedDisplayName || data.ten_dang_nhap
+          );
+          localStorage.setItem("ten_dang_nhap", data.ten_dang_nhap);
+          localStorage.setItem("vai_tro", data.vai_tro);
+
+          sidebar.classList.remove("hidden");
+
+          viewInfoSidebar.classList.add("hidden");
+          manageExerciseItem.classList.add("hidden");
+          manageClassItem.classList.add("hidden");
+          searchClassSidebar.classList.add("hidden");
+          classListSidebar.classList.add("hidden");
+          manageAccountItem.classList.add("hidden");
+          submitButton.classList.add("hidden");
+          teacherSubmitButton.classList.add("hidden");
+
+          const sidebarLinks = [
+            viewInfoSidebar,
+            manageExerciseSidebar,
+            manageClassSidebar,
+            searchClassSidebar,
+            classListSidebar,
+            manageAccountSidebar,
+          ];
+          sidebarLinks.forEach((link) => {
+            link.classList.remove("active");
+            link.style.backgroundColor = "#f0f2f5";
+            link.style.color = "#333333";
+          });
+
+          manageExerciseSidebar.classList.add("active");
+          manageExerciseSidebar.style.backgroundColor = "#4b6cb7";
+          manageExerciseSidebar.style.color = "#ffffff";
+          document.getElementById("exerciseSubButtons").style.display = "block";
+          document
+            .querySelector(
+              "#exerciseSubButtons .subitem[href='/danhsachbaitap']"
+            )
+            .classList.add("active");
+          document.querySelector(
+            "#exerciseSubButtons .subitem[href='/danhsachbaitap']"
+          ).style.backgroundColor = "#4b6cb7";
+          document.querySelector(
+            "#exerciseSubButtons .subitem[href='/danhsachbaitap']"
+          ).style.color = "#ffffff";
+
+          if (data.vai_tro === "QuanTri") {
+            viewInfoSidebar.classList.remove("hidden");
+            manageExerciseItem.classList.remove("hidden");
+            manageClassItem.classList.remove("hidden");
+            searchClassSidebar.classList.remove("hidden");
+            classListSidebar.classList.add("hidden");
+            manageAccountItem.classList.remove("hidden");
+            teacherInfoButton.classList.remove("disabled");
+            studentInfoButton.classList.remove("disabled");
+            document
+              .getElementById("submissionSection")
+              .classList.remove("hidden");
+            document
+              .getElementById("studentListSection")
+              .classList.remove("hidden"); // Thêm dòng này
+          } else if (data.vai_tro === "GiangVien") {
+            viewInfoSidebar.classList.remove("hidden");
+            manageExerciseItem.classList.remove("hidden");
+            manageClassItem.classList.remove("hidden");
+            searchClassSidebar.classList.remove("hidden");
+            classListSidebar.classList.remove("hidden");
+            manageAccountItem.classList.remove("hidden");
+            teacherInfoButton.classList.add("disabled");
+            studentInfoButton.classList.remove("disabled");
+            teacherSubmitButton.classList.remove("hidden");
+            document
+              .getElementById("submissionSection")
+              .classList.remove("hidden");
+            document
+              .getElementById("studentListSection")
+              .classList.remove("hidden"); // Thêm dòng này
+          } else if (data.vai_tro === "SinhVien") {
+            viewInfoSidebar.classList.add("hidden");
+            manageExerciseItem.classList.add("hidden");
+            manageClassItem.classList.add("hidden");
+            searchClassSidebar.classList.remove("hidden");
+            classListSidebar.classList.remove("hidden");
+            manageAccountItem.classList.add("hidden");
+            teacherInfoButton.classList.remove("disabled");
+            studentInfoButton.classList.add("disabled");
+            submitButton.classList.remove("hidden");
+          } else {
+            alert("Bạn không có quyền truy cập trang này!");
+            window.location.href = "/";
+            return;
+          }
+
+          viewInfoSidebar.onclick = function (e) {
+            e.preventDefault();
+            toggleInfoSubButtons();
+          };
+
+          manageExerciseSidebar.onclick = function (e) {
+            e.preventDefault();
+            if (data.vai_tro === "QuanTri" || data.vai_tro === "GiangVien") {
+              toggleExerciseSubButtons();
+            } else {
+              showErrorMessage("Bạn không có quyền quản lý bài tập!");
+            }
+          };
+
+          manageClassSidebar.onclick = function (e) {
+            e.preventDefault();
+            if (data.vai_tro === "QuanTri" || data.vai_tro === "GiangVien") {
+              toggleClassSubButtons();
+            } else {
+              showErrorMessage("Bạn không có quyền quản lý lớp học!");
+            }
+          };
+
+          searchClassSidebar.onclick = function (e) {
+            e.preventDefault();
+            if (
+              data.vai_tro === "QuanTri" ||
+              data.vai_tro === "GiangVien" ||
+              data.vai_tro === "SinhVien"
+            ) {
+              window.location.href = "/timkiemlophoc";
+            } else {
+              showErrorMessage("Bạn không có quyền tìm kiếm lớp học!");
+            }
+          };
+
+          classListSidebar.onclick = function (e) {
+            e.preventDefault();
+            if (
+              data.vai_tro === "QuanTri" ||
+              data.vai_tro === "GiangVien" ||
+              data.vai_tro === "SinhVien"
+            ) {
+              window.location.href = "/lophoc.html";
+            } else {
+              showErrorMessage("Bạn không có quyền xem danh sách lớp!");
+            }
+          };
+
+          document
+            .querySelectorAll("#exerciseSubButtons .subitem")
+            .forEach((item) => {
+              if (item.textContent.trim() === "Tạo bài tập") {
+                item.onclick = function (e) {
+                  e.preventDefault();
+                  if (
+                    data.vai_tro !== "QuanTri" &&
+                    data.vai_tro !== "GiangVien"
+                  ) {
+                    showErrorMessage("Bạn không có quyền tạo bài tập!");
+                    return;
+                  }
+                  window.location.href = "/taoBT";
+                };
+              } else if (item.textContent.trim() === "Danh sách bài tập") {
+                item.onclick = function (e) {
+                  e.preventDefault();
+                  if (
+                    data.vai_tro !== "QuanTri" &&
+                    data.vai_tro !== "GiangVien"
+                  ) {
+                    showErrorMessage(
+                      "Bạn không có quyền xem danh sách bài tập!"
+                    );
+                    return;
+                  }
+                  window.location.href = "/danhsachbaitap";
+                };
+              }
+            });
+
+          document
+            .querySelectorAll("#classSubButtons .subitem")
+            .forEach((item) => {
+              if (item.textContent.trim() === "Tạo lớp học") {
+                item.onclick = function (e) {
+                  e.preventDefault();
+                  if (
+                    data.vai_tro !== "QuanTri" &&
+                    data.vai_tro !== "GiangVien"
+                  ) {
+                    showErrorMessage("Bạn không có quyền tạo lớp học!");
+                    return;
+                  }
+                  window.location.href = "/taolophoc";
+                };
+              } else if (item.textContent.trim() === "Danh sách lớp") {
+                item.onclick = function (e) {
+                  e.preventDefault();
+                  if (
+                    data.vai_tro !== "QuanTri" &&
+                    data.vai_tro !== "GiangVien"
+                  ) {
+                    showErrorMessage("Bạn không có quyền xem danh sách lớp!");
+                    return;
+                  }
+                  window.location.href = "/danhsachlop";
+                };
+              }
+            });
+
+          backButton.onclick = function () {
+            window.location.href = "/";
+          };
+
+          logoutButton.onclick = function () {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("ten_dang_nhap");
+            localStorage.removeItem("userAvatar");
+            localStorage.removeItem("display_name");
+            localStorage.removeItem("vai_tro");
+            window.location.href = "/";
+          };
+
+          document
+            .querySelector(".edit-icon")
+            .addEventListener("click", function (e) {
+              e.preventDefault();
+              if (
+                data.vai_tro === "QuanTri" ||
+                data.vai_tro === "GiangVien" ||
+                data.vai_tro === "SinhVien"
+              ) {
+                window.location.href = "/chinhsuathongtin";
+              } else {
+                showErrorMessage(
+                  "Bạn không có quyền chỉnh sửa thông tin cá nhân!"
+                );
+              }
+            });
+
+          window.addEventListener("userAvatarUpdated", () => {
+            fetch(`http://127.0.0.1:8000/check_token/?_=${Date.now()}`, {
+              headers: { Authorization: `Bearer ${token}` },
+              cache: "no-store",
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                const newAvatar =
+                  data.avatar || localStorage.getItem("userAvatar");
+                userAvatar.src = newAvatar;
+                localStorage.setItem("userAvatar", newAvatar);
+              })
+              .catch((error) => {
+                console.error("Lỗi khi cập nhật ảnh đại diện:", error);
+              });
+          });
+
+          window.addEventListener("userInfoUpdated", async () => {
+            const newResponse = await fetch(
+              `http://127.0.0.1:8000/check_token/?_=${Date.now()}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+                cache: "no-store",
+              }
+            );
+            const newData = await newResponse.json();
+            const storedDisplayName = localStorage.getItem("display_name");
+            userName.textContent =
+              newData.display_name ||
+              storedDisplayName ||
+              newData.ten_dang_nhap ||
+              "Tên người dùng";
+            userEmail.textContent =
+              newData.ten_dang_nhap || "email@example.com";
+            const avatar =
+              newData.avatar ||
+              localStorage.getItem("userAvatar") ||
+              `https://via.placeholder.com/50?text=${encodeURIComponent(
+                newData.ten_dang_nhap || "User"
+              )}`;
+            userAvatar.src = avatar;
+            localStorage.setItem("userAvatar", avatar);
+            localStorage.setItem(
+              "display_name",
+              newData.display_name || storedDisplayName || newData.ten_dang_nhap
+            );
+            localStorage.setItem("vai_tro", newData.vai_tro);
+          });
+
+          window.addEventListener("storage", (event) => {
+            if (event.key === "display_name") {
+              const userName = document.getElementById("userName");
+              if (userName && event.newValue) {
+                userName.textContent = event.newValue || "Tên người dùng";
+              }
+            }
+          });
+
+          window.addEventListener("pageshow", () => {
+            checkLoginStatus();
+          });
+
+          document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") {
+              checkLoginStatus();
+            }
+          });
+        } catch (error) {
+          console.error("Lỗi kiểm tra token:", error);
+          alert(error.message);
+          window.location.href = "/";
+        }
+      }
+
+      document.getElementById("manualDoExerciseButton").onclick = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const exerciseId = urlParams.get("ma_bai_tap");
+        if (exerciseId) {
+          window.location.href = `/lambaithisinh?ma_bai_tap=${exerciseId}`;
+        } else {
+          showErrorMessage("Không tìm thấy mã bài tập!");
+        }
+      };
+
+      function toggleInfoSubButtons() {
+        const subButtons = document.getElementById("infoSubButtons");
+        if (subButtons.style.display === "block") {
+          subButtons.style.display = "none";
+        } else {
+          subButtons.style.display = "block";
+        }
+      }
+
+      function toggleExerciseSubButtons() {
+        const subButtons = document.getElementById("exerciseSubButtons");
+        if (subButtons.style.display === "block") {
+          subButtons.style.display = "none";
+        } else {
+          subButtons.style.display = "block";
+        }
+      }
+
+      function toggleClassSubButtons() {
+        const subButtons = document.getElementById("classSubButtons");
+        if (subButtons.style.display === "block") {
+          subButtons.style.display = "none";
+        } else {
+          subButtons.style.display = "block";
+        }
+      }
+
+      async function loadExerciseDetails() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const exerciseId = urlParams.get("ma_bai_tap");
+        if (!exerciseId) {
+          alert("Không tìm thấy mã bài tập!");
+          window.location.href = "/danhsachbaitap";
+          return;
+        }
+
+        const token = await checkAndRefreshToken();
+        if (!token) return;
+
+        try {
+          const response = await fetch(
+            `http://127.0.0.1:8000/exercises/${exerciseId}/`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              cache: "no-store",
+            }
+          );
+          if (!response.ok) {
+            const error = await response.json();
+            alert(error.detail || "Không thể tải chi tiết bài tập!");
+            return;
+          }
+          const exercise = await response.json();
+          document.getElementById("tieuDe").textContent =
+            exercise.tieu_de || "Chưa có tiêu đề";
+          document.getElementById("noiDung").textContent =
+            exercise.noi_dung && exercise.ngon_ngu
+              ? (() => {
+                  const data = JSON.parse(exercise.noi_dung);
+                  if (exercise.ngon_ngu.toLowerCase() === "html" && data.html)
+                    return `<html>\n<head>\n    <title>Trang chao</title>\n</head>\n<body>\n    <h1>Xin chao!</h1>\n    <p>Chao mung ban den voi website</p>\n</body>\n</html>`;
+                  if (exercise.ngon_ngu.toLowerCase() === "css" && data.css)
+                    return data.css;
+                  return "Chưa có nội dung";
+                })()
+              : "Chưa có nội dung";
+          document.getElementById("hanNop").textContent = exercise.han_nop
+            ? new Date(exercise.han_nop).toLocaleString("vi-VN", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })
+            : "Chưa xác định";
+          document.getElementById("moTa").textContent =
+            exercise.mo_ta || "Không có mô tả";
+          document.getElementById("ngonNgu").textContent =
+            exercise.ngon_ngu || "Chưa xác định";
+          document.getElementById("maLop").textContent =
+            Array.isArray(exercise.ma_lop) && exercise.ma_lop.length > 0
+              ? exercise.ma_lop.join(", ")
+              : "Không có lớp";
+          document.getElementById("trangThai").textContent =
+            new Date(exercise.han_nop) < new Date() ? "Hết hạn" : "Còn hạn";
+
+          const vaiTro = localStorage.getItem("vai_tro");
+          const submitButton = document.getElementById("submitButton");
+          const manualDoExerciseButton = document.getElementById(
+            "manualDoExerciseButton"
+          );
+          const teacherSubmitButton = document.getElementById(
+            "teacherSubmitButton"
+          );
+          if (exercise.trang_thai !== "mo") {
+            submitButton.classList.add("hidden");
+            manualDoExerciseButton.classList.add("hidden");
+            teacherSubmitButton.classList.add("hidden");
+          } else if (vaiTro === "SinhVien") {
+            submitButton.classList.remove("hidden");
+            manualDoExerciseButton.classList.remove("hidden");
+            teacherSubmitButton.classList.add("hidden");
+          } else if (vaiTro === "GiangVien") {
+            submitButton.classList.add("hidden");
+            manualDoExerciseButton.classList.add("hidden");
+            teacherSubmitButton.classList.remove("hidden");
+          } else {
+            submitButton.classList.add("hidden");
+            manualDoExerciseButton.classList.add("hidden");
+            teacherSubmitButton.classList.add("hidden");
+          }
+        } catch (err) {
+          console.error("Lỗi:", err);
+          alert("Đã xảy ra lỗi khi tải chi tiết bài tập!");
+        }
+      }
+
+      async function loadSubmissionStatus() {
+        const vaiTro = localStorage.getItem("vai_tro");
+        console.log("Vai trò hiện tại:", vaiTro);
+        if (vaiTro !== "QuanTri" && vaiTro !== "GiangVien") {
+          console.log("Không tải danh sách bài nộp cho vai trò:", vaiTro);
+          return;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const exerciseId = urlParams.get("ma_bai_tap");
+        if (!exerciseId) {
+          showErrorMessage("Không tìm thấy mã bài tập!");
+          return;
+        }
+
+        const token = await checkAndRefreshToken();
+        if (!token) {
+          showErrorMessage("Token không hợp lệ, vui lòng đăng nhập lại!");
+          return;
+        }
+
+        try {
+          console.log("Gửi yêu cầu lấy bài nộp với token:", token);
+          // Lấy thông tin bài tập để lấy han_nop
+          const exerciseResponse = await fetch(
+            `http://127.0.0.1:8000/exercises/${exerciseId}/`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              cache: "no-store",
+            }
+          );
+          console.log("Phản hồi từ API bài tập:", exerciseResponse.status);
+          if (!exerciseResponse.ok) {
+            const error = await exerciseResponse.json();
+            console.error("Lỗi khi lấy thông tin bài tập:", error);
+            showErrorMessage(
+              error.detail || "Không thể tải thông tin bài tập!"
+            );
+            return;
+          }
+          const exercise = await exerciseResponse.json();
+          const deadline = exercise.han_nop ? new Date(exercise.han_nop) : null;
+
+          // Lấy danh sách bài nộp
+          const submissionsResponse = await fetch(
+            `http://127.0.0.1:8000/exercises/${exerciseId}/submissions/`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              cache: "no-store",
+            }
+          );
+          console.log("Phản hồi từ API bài nộp:", submissionsResponse.status);
+          if (!submissionsResponse.ok) {
+            const error = await submissionsResponse.json();
+            console.error("Lỗi khi lấy danh sách bài nộp:", error);
+            showErrorMessage(
+              error.detail || "Không thể tải trạng thái nộp bài!"
+            );
+            return;
+          }
+          const submissions = await submissionsResponse.json();
+          console.log("Danh sách bài nộp:", submissions);
+
+          // Tạo bảng hiển thị
+          const tableBody = document.getElementById("submissionTableBody");
+          tableBody.innerHTML = "";
+
+          // Tính toán thống kê
+          let submittedCount = 0;
+          let notSubmittedCount = 0;
+          submissions.forEach((submission) => {
+            if (submission.trang_thai === "chua_nop") {
+              notSubmittedCount++;
+            } else {
+              submittedCount++;
+            }
+          });
+
+          // Hiển thị thống kê
+          document.getElementById("submittedCount").textContent =
+            submittedCount;
+          document.getElementById("notSubmittedCount").textContent =
+            notSubmittedCount;
+
+          // Tạo các hàng của bảng
+          submissions.forEach((submission) => {
+            const row = document.createElement("tr");
+            const nameCell = document.createElement("td");
+            const statusCell = document.createElement("td");
+            const timeCell = document.createElement("td");
+            const attemptCell = document.createElement("td");
+            const actionCell = document.createElement("td");
+
+            nameCell.textContent = submission.ten_hien_thi || "Không xác định";
+            statusCell.textContent = submission.trang_thai || "Chưa xác định";
+            timeCell.textContent = submission.thoi_gian_nop
+              ? new Date(submission.thoi_gian_nop).toLocaleString("vi-VN", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })
+              : "-";
+            attemptCell.textContent = submission.lan_nop || 0;
+
+            // Tạo liên kết "Xem chi tiết" sử dụng ma_bai_nop
+            const detailLink = document.createElement("a");
+            detailLink.textContent = "Xem chi tiết";
+            const submissionId = submission.ma_bai_nop;
+            detailLink.href = submissionId
+              ? `/chitietBaiNop?ma_bai_tap=${exerciseId}&submission_id=${submissionId}`
+              : "#";
+            detailLink.style.cursor = submissionId ? "pointer" : "not-allowed";
+            detailLink.style.color = submissionId ? "#1e40af" : "#cccccc";
+            if (!submissionId) {
+              detailLink.onclick = function (e) {
+                e.preventDefault();
+                showErrorMessage("Không có nội dung bài nộp để hiển thị!");
+              };
+            }
+
+            actionCell.appendChild(detailLink);
+
+            if (submission.thoi_gian_nop && deadline) {
+              const submissionTime = new Date(submission.thoi_gian_nop);
+              if (submissionTime > deadline) {
+                statusCell.textContent = "Nộp muộn";
+                statusCell.className = "status-late";
+              } else {
+                statusCell.className = "status-submitted";
+              }
+            } else if (submission.trang_thai) {
+              statusCell.className =
+                submission.trang_thai === "chua_nop"
+                  ? "status-not-submitted"
+                  : "status-submitted";
+            }
+
+            row.appendChild(nameCell);
+            row.appendChild(statusCell);
+            row.appendChild(timeCell);
+            row.appendChild(attemptCell);
+            row.appendChild(actionCell);
+            tableBody.appendChild(row);
+          });
+        } catch (err) {
+          console.error("Lỗi khi tải trạng thái nộp bài:", err);
+          showErrorMessage("Đã xảy ra lỗi khi tải trạng thái nộp bài!");
+        }
+      }
+
+      async function loadFullExerciseContent(exerciseId) {
+        const token = await checkAndRefreshToken();
+        if (!token) return null;
+
+        try {
+          const response = await fetch(
+            `http://127.0.0.1:8000/exercise/content/${exerciseId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              cache: "no-store",
+            }
+          );
+          if (!response.ok) {
+            throw new Error("Không thể tải nội dung bài tập!");
+          }
+          return await response.json();
+        } catch (err) {
+          console.error("Lỗi khi tải nội dung:", err);
+          showErrorMessage("Đã xảy ra lỗi khi tải nội dung bài tập!");
+          return null;
+        }
+      }
+
+      async function loadStudentList() {
+        const vaiTro = localStorage.getItem("vai_tro");
+        console.log("Vai trò hiện tại:", vaiTro);
+        if (vaiTro !== "QuanTri" && vaiTro !== "GiangVien") {
+          console.log("Không tải danh sách sinh viên cho vai trò:", vaiTro);
+          document.getElementById("studentListSection").classList.add("hidden");
+          return;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const exerciseId = urlParams.get("ma_bai_tap");
+        if (!exerciseId) {
+          showErrorMessage("Không tìm thấy mã bài tập!");
+          return;
+        }
+
+        const token = await checkAndRefreshToken();
+        if (!token) {
+          showErrorMessage("Token không hợp lệ, vui lòng đăng nhập lại!");
+          return;
+        }
+
+        try {
+          // Lấy thông tin bài tập để lấy ma_lop
+          console.log("Đang lấy thông tin bài tập với ID:", exerciseId);
+          const exerciseResponse = await fetch(
+            `http://127.0.0.1:8000/exercises/${exerciseId}/?_=${Date.now()}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              cache: "no-store",
+            }
+          );
+          console.log("Phản hồi từ API bài tập:", exerciseResponse.status);
+          if (!exerciseResponse.ok) {
+            const error = await exerciseResponse.json().catch(() => ({}));
+            console.error("Lỗi khi lấy thông tin bài tập:", error);
+            showErrorMessage(
+              error.detail || "Không thể tải thông tin bài tập!"
+            );
+            return;
+          }
+          const exercise = await exerciseResponse.json();
+          console.log("Dữ liệu bài tập:", exercise);
+          const classId =
+            Array.isArray(exercise.ma_lop) && exercise.ma_lop.length > 0
+              ? exercise.ma_lop[0]
+              : null;
+
+          if (!classId) {
+            console.warn(
+              "Không tìm thấy mã lớp học trong bài tập:",
+              exercise.ma_lop
+            );
+            showErrorMessage("Không tìm thấy lớp học liên quan đến bài tập!");
+            document.getElementById("studentListSection").innerHTML =
+              '<p class="text-gray-500 text-center py-2">Không có lớp học liên quan.</p>';
+            return;
+          }
+
+          // Lấy danh sách sinh viên của lớp
+          console.log("Đang lấy danh sách sinh viên cho lớp ID:", classId);
+          const studentsResponse = await fetch(
+            `http://127.0.0.1:8000/classes/${classId}/students/?_=${Date.now()}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              cache: "no-store",
+            }
+          );
+          console.log("Phản hồi từ API sinh viên:", studentsResponse.status);
+          if (!studentsResponse.ok) {
+            const error = await studentsResponse.json().catch(() => ({}));
+            console.error("Lỗi khi lấy danh sách sinh viên:", error);
+            showErrorMessage(
+              error.detail || "Không thể tải danh sách sinh viên!"
+            );
+            return;
+          }
+          const students = await studentsResponse.json();
+          console.log("Danh sách sinh viên:", students);
+
+          // Cập nhật bảng danh sách sinh viên
+          const tableBody = document.getElementById("studentTableBody");
+          tableBody.innerHTML = "";
+
+          if (students.length === 0) {
+            tableBody.innerHTML =
+              '<tr><td colspan="5" class="text-gray-500 text-center py-2">Không có sinh viên trong lớp.</td></tr>';
+            return;
+          }
+
+          students.forEach((student) => {
+            const row = document.createElement("tr");
+            const nameCell = document.createElement("td");
+            const studentIdCell = document.createElement("td");
+            const emailCell = document.createElement("td");
+            const statusCell = document.createElement("td");
+            const actionCell = document.createElement("td");
+
+            nameCell.textContent = student.ten_hien_thi || "Không xác định";
+            studentIdCell.textContent =
+              student.ma_sinh_vien || "Không xác định";
+            emailCell.textContent = student.email || "Không xác định";
+            statusCell.textContent =
+              student.trang_thai === "active" ? "Hoạt động" : "Không hoạt động";
+            statusCell.className =
+              student.trang_thai === "active"
+                ? "status-active"
+                : "status-inactive";
+
+            // Tạo liên kết "Xem chi tiết"
+            const detailLink = document.createElement("a");
+            detailLink.textContent = "Xem chi tiết";
+            detailLink.href = `/thongtin/sinhvien?ma_sinh_vien=${student.ma_sinh_vien}`;
+            detailLink.style.color = "#1e40af";
+            detailLink.style.cursor = "pointer";
+            actionCell.appendChild(detailLink);
+
+            // Thêm nút xóa nếu là admin hoặc giảng viên
+            if (vaiTro === "QuanTri" || vaiTro === "GiangVien") {
+              const deleteButton = document.createElement("button");
+              deleteButton.textContent = "Xóa";
+              deleteButton.style.marginLeft = "1rem";
+              deleteButton.style.color = "#991b1b";
+              deleteButton.style.cursor = "pointer";
+              deleteButton.style.background = "none";
+              deleteButton.style.border = "none";
+              deleteButton.onclick = async () => {
+                if (
+                  confirm(
+                    `Bạn có chắc muốn xóa sinh viên ${student.ten_hien_thi} khỏi lớp?`
+                  )
+                ) {
+                  try {
+                    const deleteResponse = await fetch(
+                      `http://127.0.0.1:8000/classes/${classId}/students/${student.ma_sinh_vien}/`,
+                      {
+                        method: "DELETE",
+                        headers: { Authorization: `Bearer ${token}` },
+                      }
+                    );
+                    if (deleteResponse.ok) {
+                      showSuccessMessage("Xóa sinh viên thành công!");
+                      loadStudentList(); // Tải lại danh sách
+                    } else {
+                      const error = await deleteResponse
+                        .json()
+                        .catch(() => ({}));
+                      showErrorMessage(
+                        error.detail || "Không thể xóa sinh viên!"
+                      );
+                    }
+                  } catch (err) {
+                    console.error("Lỗi khi xóa sinh viên:", err);
+                    showErrorMessage("Đã xảy ra lỗi khi xóa sinh viên!");
+                  }
+                }
+              };
+              actionCell.appendChild(deleteButton);
+            }
+
+            row.appendChild(nameCell);
+            row.appendChild(studentIdCell);
+            row.appendChild(emailCell);
+            row.appendChild(statusCell);
+            row.appendChild(actionCell);
+            tableBody.appendChild(row);
+          });
+
+          // Hiển thị section danh sách sinh viên
+          document
+            .getElementById("studentListSection")
+            .classList.remove("hidden");
+        } catch (err) {
+          console.error("Lỗi khi tải danh sách sinh viên:", err);
+          showErrorMessage("Đã xảy ra lỗi khi tải danh sách sinh viên!");
+          document.getElementById("studentListSection").innerHTML =
+            '<p class="text-gray-500 text-center py-2">Đã xảy ra lỗi khi tải danh sách.</p>';
+        }
+      }
+      async function redirectToHomeWithCode() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const exerciseId = urlParams.get("ma_bai_tap");
+        const classId = urlParams.get("classId");
+
+        if (!exerciseId) {
+          console.error("Không tìm thấy mã bài tập trong URL");
+          showErrorMessage("Không tìm thấy mã bài tập!");
+          return;
+        }
+
+        const token = await checkAndRefreshToken();
+        if (!token) {
+          console.error("Token không hợp lệ hoặc không thể làm mới token");
+          showErrorMessage("Vui lòng đăng nhập lại!");
+          return;
+        }
+
+        try {
+          console.log(`Đang lấy chi tiết bài tập với ID: ${exerciseId}`);
+          const response = await fetch(
+            `http://127.0.0.1:8000/exercises/${exerciseId}/`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              cache: "no-store",
+            }
+          );
+
+          if (!response.ok) {
+            const error = await response.json();
+            console.error("Lỗi API:", error);
+            throw new Error(error.detail || "Không thể tải chi tiết bài tập!");
+          }
+
+          const exercise = await response.json();
+          console.log("Dữ liệu bài tập nhận được:", exercise);
+          let content = { html: "", css: "", js: "", activeSources: {} };
+          if (exercise.noi_dung) {
+            try {
+              const parsedContent = JSON.parse(exercise.noi_dung);
+              content = {
+                html: parsedContent.html || "",
+                css: parsedContent.css || "",
+                js: parsedContent.js || "",
+                activeSources: {
+                  html:
+                    !!parsedContent.html ||
+                    exercise.ngon_ngu.toLowerCase() === "html",
+                  css:
+                    !!parsedContent.css ||
+                    exercise.ngon_ngu.toLowerCase() === "css",
+                  js:
+                    !!parsedContent.js ||
+                    exercise.ngon_ngu.toLowerCase() === "javascript",
+                },
+              };
+            } catch (e) {
+              console.warn("Nội dung không phải JSON, gán theo ngôn ngữ:", e);
+              if (exercise.ngon_ngu.toLowerCase() === "html") {
+                content.html = exercise.noi_dung;
+                content.activeSources.html = true;
+              } else if (exercise.ngon_ngu.toLowerCase() === "css") {
+                content.css = exercise.noi_dung;
+                content.activeSources.css = true;
+              } else if (exercise.ngon_ngu.toLowerCase() === "javascript") {
+                content.js = exercise.noi_dung;
+                content.activeSources.js = true;
+              } else {
+                content.html = exercise.noi_dung;
+                content.activeSources.html = true;
+              }
+            }
+          } else {
+            console.warn("Không có noi_dung trong dữ liệu bài tập");
+          }
+
+          const exerciseContent = {
+            exerciseId: exerciseId,
+            html: content.html,
+            css: content.css,
+            js: content.js,
+            activeSources: content.activeSources,
+            language: exercise.ngon_ngu
+              ? exercise.ngon_ngu.toLowerCase()
+              : "html",
+          };
+          console.log(
+            "Lưu exerciseContent vào sessionStorage:",
+            exerciseContent
+          );
+          sessionStorage.setItem("isFromDoExercise", "true");
+          sessionStorage.setItem("exerciseId", exerciseId);
+          sessionStorage.setItem(
+            "exerciseContent",
+            JSON.stringify(exerciseContent)
+          );
+          if (classId) {
+            sessionStorage.setItem("currentClassId", classId);
+            console.log(`Lưu classId: ${classId}`);
+          }
+
+          const redirectUrl = `http://127.0.0.1:8000/?exercise_id=${exerciseId}${
+            classId ? `&classId=${classId}` : ""
+          }`;
+          console.log(`Chuyển hướng đến: ${redirectUrl}`);
+          window.location.href = redirectUrl;
+        } catch (err) {
+          console.error("Lỗi trong redirectToHomeWithCode:", err);
+          showErrorMessage(
+            err.message || "Đã xảy ra lỗi khi tải nội dung bài tập!"
+          );
+        }
+      }
+
+      document.getElementById("doExerciseButton").onclick =
+        redirectToHomeWithCode;
+      document.getElementById("teacherDoExerciseButton").onclick =
+        redirectToHomeWithCode;
+      document.getElementById("manualDoExerciseButton").onclick =
+        redirectToHomeWithCode;
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        await checkLoginStatus();
+        await loadExerciseDetails();
+        await loadSubmissionStatus();
+        await loadStudentList(); // Thêm dòng này
+      });
+    </script>
+  </body>
+</html>

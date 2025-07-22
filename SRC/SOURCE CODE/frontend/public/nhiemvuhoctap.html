@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nhiệm Vụ Học Tập</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .error-message {
+        color: red;
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="container">
+      <h1 class="text-2xl font-bold mb-4">Chi Tiết Nhiệm Vụ Học Tập</h1>
+      <div id="exercise-details" class="bg-white p-6 rounded-lg shadow-md">
+        <h2 id="exercise-title" class="text-xl font-semibold"></h2>
+        <p id="exercise-description" class="mt-2"></p>
+        <p id="exercise-deadline" class="mt-2"></p>
+        <p id="exercise-language" class="mt-2"></p>
+        <p id="exercise-status" class="mt-2"></p>
+        <div id="exercise-content" class="mt-4">
+          <h3 class="font-semibold">Nội dung:</h3>
+          <pre id="html-content" class="bg-gray-200 p-4 rounded"></pre>
+          <pre id="css-content" class="bg-gray-200 p-4 rounded"></pre>
+          <pre id="js-content" class="bg-gray-200 p-4 rounded"></pre>
+        </div>
+        <a
+          id="file-link"
+          href="#"
+          class="text-blue-500 mt-2 inline-block"
+          style="display: none"
+          >Tải file đính kèm</a
+        >
+      </div>
+      <p id="error-message" class="error-message mt-4"></p>
+      <button
+        onclick="window.history.back()"
+        class="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+      >
+        Quay lại
+      </button>
+    </div>
+
+    <script>
+      async function fetchExerciseDetails() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const ma_bai_tap = urlParams.get("ma_bai_tap");
+        const token = localStorage.getItem("access_token");
+
+        if (!ma_bai_tap) {
+          document.getElementById("error-message").textContent =
+            "Không tìm thấy mã bài tập";
+          document.getElementById("error-message").style.display = "block";
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `http://127.0.0.1:8000/exercises/${ma_bai_tap}/`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Không thể lấy dữ liệu bài tập");
+          }
+
+          const data = await response.json();
+          document.getElementById("exercise-title").textContent =
+            data.tieu_de || "Không có tiêu đề";
+          document.getElementById(
+            "exercise-description"
+          ).textContent = `Mô tả: ${data.mo_ta || "Không có mô tả"}`;
+          document.getElementById(
+            "exercise-deadline"
+          ).textContent = `Hạn nộp: ${data.han_nop || "Không có hạn nộp"}`;
+          document.getElementById(
+            "exercise-language"
+          ).textContent = `Ngôn ngữ: ${data.ngon_ngu || "Không xác định"}`;
+          document.getElementById(
+            "exercise-status"
+          ).textContent = `Trạng thái: ${data.trang_thai || "Không xác định"}`;
+
+          // Hiển thị nội dung bài tập
+          const noi_dung =
+            typeof data.noi_dung === "string"
+              ? JSON.parse(data.noi_dung)
+              : data.noi_dung;
+          document.getElementById("html-content").textContent =
+            noi_dung.html || "// Không có mã HTML";
+          document.getElementById("css-content").textContent =
+            noi_dung.css || "// Không có mã CSS";
+          document.getElementById("js-content").textContent =
+            noi_dung.js || "// Không có mã JavaScript";
+
+          // Hiển thị link file đính kèm nếu có
+          if (data.tap_tin_bai_tap) {
+            const fileLink = document.getElementById("file-link");
+            fileLink.href = `http://127.0.0.1:8000${data.tap_tin_bai_tap}`;
+            fileLink.style.display = "block";
+          }
+        } catch (error) {
+          document.getElementById(
+            "error-message"
+          ).textContent = `Lỗi: ${error.message}`;
+          document.getElementById("error-message").style.display = "block";
+        }
+      }
+
+      window.onload = fetchExerciseDetails;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,3562 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kiểm tra mã nguồn</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.min.js"
+      defer
+    ></script>
+    <link rel="icon" type="image/x-icon" href="/public/favicon.ico" />
+    <link rel="stylesheet" href="/public/output.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+      rel="preconnect"
+    />
+    <style>
+      body {
+        background-color: #f9fafb;
+        color: #1e293b;
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        z-index: 1;
+      }
+      .account-sub-buttons {
+        display: none;
+        margin-left: 1.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .account-sub-buttons.active {
+        display: block;
+        max-height: 200px; /* Điều chỉnh theo nội dung */
+        opacity: 1;
+      }
+      #manageAccountSidebar a:hover {
+        color: #2563eb;
+      }
+      #manageAccountSidebar img {
+        width: 24px;
+        height: 24px;
+      }
+      .account-sub-buttons a {
+        display: flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
+        color: #333333;
+        text-decoration: none;
+        background: #e0e7ff;
+        border-radius: 0.25rem;
+        margin-bottom: 0.5rem;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      .account-sub-buttons a:hover {
+        background-color: #c7d2fe;
+        color: #1e40af;
+      }
+      .account-sub-buttons a svg {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+        stroke: currentColor;
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f1f1f1;
+      }
+
+      .editor-container {
+        flex: 1;
+        min-height: 200px;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        background-color: #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        position: relative;
+        z-index: 20;
+      }
+
+      .modal {
+        z-index: 1000;
+        display: none;
+      }
+      .modal:not(.hidden) {
+        display: flex !important;
+        z-index: 2000;
+      }
+      .modal .bg-white {
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .errorHighlight {
+        background-color: rgba(135, 5, 5, 0.84) !important;
+        border-left: 4px solid #e45353 !important;
+        font-weight: bold !important;
+        font-style: normal !important;
+        /* Xóa hoặc đảm bảo không chặn tương tác */
+        pointer-events: auto !important; /* Cho phép tương tác */
+      }
+
+      .aiHighlight {
+        background-color: rgba(59, 130, 246, 0.1) !important;
+        border-left: 4px solid #3b82f6 !important;
+      }
+      /* Thêm style cho glyph margin (nếu dùng) */
+      .errorHighlight .glyph-margin {
+        background-color: #00f853 !important;
+        width: 4px;
+      }
+      table th,
+      table td {
+        padding: 0.75rem;
+        border: 1px solid #e5e7eb;
+        text-align: left;
+      }
+      table thead tr {
+        background-color: #f3f4f6;
+        color: #1e293b;
+      }
+
+      button:disabled {
+        background-color: #d1d5db;
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+
+      @media (max-width: 640px) {
+        .flex-wrap.gap-6 button {
+          flex: 1 1 100%;
+        }
+      }
+      .opacity-50 {
+        opacity: 0.5;
+        pointer-events: none; /* Ngăn không cho người dùng tương tác với nút */
+      }
+      .sidebar {
+        width: 280px;
+        background: #ffffff;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        padding: 2rem;
+        border-right: 1px solid #e5e7eb;
+        overflow-y: auto;
+        z-index: 15;
+      }
+      .sidebar .user-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+        position: relative;
+      }
+      .sidebar .user-info img {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        object-fit: cover;
+        border: 2px solid #4b6cb7;
+      }
+      .sidebar .user-info .edit-icon {
+        position: absolute;
+        top: 48px;
+        right: 5px;
+        background: #4b6cb7;
+        border-radius: 50%;
+        padding: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .sidebar .user-info .edit-icon svg {
+        width: 16px;
+        height: 16px;
+        stroke: #ffffff;
+      }
+      .sidebar .user-info .user-details h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #333333;
+      }
+      .sidebar .user-info .user-details p {
+        font-size: 0.875rem;
+        color: #666666;
+        font-weight: 500;
+      }
+      .sidebar nav ul {
+        list-style: none;
+        padding: 0;
+      }
+      .sidebar nav ul li {
+        margin-bottom: 0.5rem;
+      }
+      .sidebar nav ul li a {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0.75rem;
+        color: #333333;
+        text-decoration: none;
+        border-radius: 0.375rem;
+        font-size: 0.95rem;
+        background: #f0f2f5;
+        transition: background-color 0.2s;
+        position: relative;
+      }
+      .sidebar nav ul li a.active {
+        background: #4b6cb7;
+        color: #ffffff;
+      }
+      .sidebar nav ul li a svg {
+        width: 1.125rem;
+        height: 1.125rem;
+        margin-right: 0.5rem;
+        stroke: currentColor;
+      }
+
+      .info-sub-buttons,
+      .class-sub-buttons,
+      .exercise-sub-buttons {
+        display: none;
+        margin-left: 1.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .info-sub-buttons a,
+      .class-sub-buttons a,
+      .exercise-sub-buttons a {
+        display: flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
+        color: #333333;
+        text-decoration: none;
+        background: #e0e7ff;
+        border-radius: 0.25rem;
+        margin-bottom: 0.5rem;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      .info-sub-buttons a:hover,
+      .class-sub-buttons a:hover,
+      .exercise-sub-buttons a:hover {
+        background-color: #c7d2fe;
+        color: #1e40af;
+      }
+      .info-sub-buttons a svg,
+      .class-sub-buttons a svg,
+      .exercise-sub-buttons a svg {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+        stroke: currentColor;
+      }
+
+      .main-content {
+        margin-left: 280px;
+        min-height: 100vh;
+        padding: 1rem 2rem;
+        padding-top: 70px;
+        overflow-y: auto;
+        position: relative;
+        z-index: 10;
+      }
+      header {
+        background: #4b6cb7;
+        color: #ffffff;
+        padding: 1rem 2rem;
+        position: fixed;
+        top: 0;
+        left: 280px;
+        right: 0;
+        z-index: 40;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        height: 60px;
+      }
+
+      header button {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+      }
+
+      .login-btn {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .logout-btn {
+        color: #ffffff;
+        background: #ef4444;
+      }
+
+      .bg-white {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+      }
+
+      .bg-blue-600 {
+        background-color: #3b82f6;
+      }
+      .bg-blue-600:hover {
+        background-color: #2563eb;
+      }
+      .bg-teal-500 {
+        background-color: #2dd4bf;
+      }
+      .bg-teal-500:hover {
+        background-color: #14b8a6;
+      }
+      .bg-gray-500 {
+        background-color: #6b7280;
+      }
+      .bg-gray-500:hover {
+        background-color: #4b5563;
+      }
+      .bg-red-600 {
+        background-color: #ef4444;
+      }
+      .bg-red-600:hover {
+        background-color: #dc2626;
+      }
+
+      .bg-gray-50 {
+        background-color: #f9fafb;
+        border-radius: 0.5rem;
+      }
+
+      .text-blue-600 {
+        color: #3b82f6;
+      }
+      .text-red-600 {
+        color: #ef4444;
+      }
+      .text-green-600 {
+        color: #22c55e;
+      }
+      .text-gray-600 {
+        color: #6b7280;
+      }
+      .text-gray-700 {
+        color: #374151;
+      }
+
+      .bg-green-100 {
+        background-color: #ecfdf5;
+      }
+      .bg-gray-100 {
+        background-color: #f3f4f6;
+      }
+      .bg-white.rounded-xl.shadow-md.p-6.border.border-gray-200.flex.flex-col.space-y-8 {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      #centerNotification {
+        position: fixed;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        min-width: 200px;
+        text-align: center;
+        transition: opacity 0.3s ease-in-out;
+        background-color: rgb(220, 221, 222); /* bg-gray-100 */
+        color: rgb(220 38 38); /* text-red-600 */
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.375rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        font-weight: 500;
+        font-size: 1.25rem;
+      }
+      #centerNotification:not(.hidden) {
+        opacity: 1;
+      }
+      #centerNotification.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-100 font-['Inter',sans-serif] min-h-screen flex flex-col"
+  >
+    <div class="flex mt-4">
+      <aside id="sidebar" class="sidebar">
+        <div class="user-info">
+          <img
+            id="userAvatar"
+            src="https://via.placeholder.com/50"
+            alt="User Avatar"
+          />
+          <a
+            href="/chinhsuathongtin"
+            class="edit-icon"
+            title="Chỉnh sửa thông tin"
+          >
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              ></path>
+            </svg>
+          </a>
+          <div class="user-details">
+            <h3 id="userName">Tên người dùng</h3>
+            <p id="userEmail">admin@gmail.com</p>
+            <p id="userRole">Vai trò: Chưa xác định</p>
+          </div>
+        </div>
+        <nav>
+          <ul>
+            <li>
+              <a
+                href="#"
+                id="viewInfoSidebar"
+                class="flex items-center px-4 py-2 rounded-lg font-medium"
+                style="background-color: #f0f2f5; color: #333333"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                Xem thông tin
+              </a>
+              <div class="info-sub-buttons" id="infoSubButtons">
+                <a
+                  href="/thongtin/giangvien"
+                  class="subitem"
+                  id="teacherInfoButton"
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM12 15c-3.313 0-6 1.343-6 3v1h12v-1c0-1.657-2.687-3-6-3z"
+                    ></path>
+                  </svg>
+                  Giảng viên
+                </a>
+                <a
+                  href="/thongtin/sinhvien"
+                  class="subitem"
+                  id="studentInfoButton"
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM12 15c-3.313 0-6 1.343-6 3v1h12v-1c0-1.657-2.687-3-6-3z"
+                    ></path>
+                  </svg>
+                  Sinh viên
+                </a>
+              </div>
+            </li>
+            <li>
+              <a
+                href="#"
+                id="manageExerciseSidebar"
+                class="flex items-center px-4 py-2 rounded-lg font-medium hidden"
+                style="background-color: #f0f2f5; color: #333333"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 22"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  ></path>
+                </svg>
+                Quản lý bài tập
+              </a>
+              <div class="exercise-sub-buttons" id="exerciseSubButtons">
+                <a href="/taoBT" class="subitem">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    ></path>
+                  </svg>
+                  Tạo bài tập
+                </a>
+                <a href="/danhsachbaitap" class="subitem">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                    ></path>
+                  </svg>
+                  Danh sách bài tập
+                </a>
+              </div>
+            </li>
+            <li>
+              <a
+                href="#"
+                id="manageClassSidebar"
+                class="flex items-center px-4 py-2 rounded-lg font-medium"
+                style="background-color: #f0f2f5; color: #333333"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  ></path>
+                </svg>
+                Quản lý lớp
+              </a>
+              <div class="class-sub-buttons" id="classSubButtons">
+                <a href="/taolophoc" class="subitem">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    ></path>
+                  </svg>
+                  Tạo lớp học
+                </a>
+                <a href="/danhsachlop" class="subitem">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                    ></path>
+                  </svg>
+                  Danh sách lớp
+                </a>
+              </div>
+            </li>
+
+            <li>
+              <a
+                href="/timkiemlophoc"
+                id="searchClassSidebar"
+                class="flex items-center px-4 py-2 rounded-lg font-medium"
+                style="background-color: #f0f2f5; color: #333333"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  ></path>
+                </svg>
+                Tìm kiếm lớp học
+              </a>
+            </li>
+            <!-- Mục thay đổi mật khẩu-->
+            <li class="hidden">
+              <a
+                href="#"
+                id="changePasswordSidebar"
+                class="flex items-center px-4 py-2 rounded-lg font-medium"
+                style="background-color: #f0f2f5; color: #333333"
+              >
+                <svg
+                  class="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                  ></path>
+                </svg>
+                Đổi mật khẩu
+              </a>
+            </li>
+            <!-- Thêm vào ngay sau </li> của Đổi mật khẩu -->
+            <li>
+              <a
+                href="#"
+                id="manageAccountSidebar"
+                class="flex items-center px-4 py-2 rounded-lg font-medium"
+                style="background-color: #f0f2f5; color: #333333"
+              >
+                <svg
+                  class="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  ></path>
+                </svg>
+                Quản lý tài khoản
+              </a>
+
+              <div class="account-sub-buttons" id="accountSubButtons">
+                <a href="/themgiangvien" class="subitem" id="addTeacherButton">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM12 15c-3.313 0-6 1.343-6 3v1h12v-1c0-1.657-2.687-3-6-3z"
+                    ></path>
+                  </svg>
+                  Thêm giảng viên
+                </a>
+                <a href="/themsinhvien" class="subitem" id="addStudentButton">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM12 15c-3.313 0-6 1.343-6 3v1h12v-1c0-1.657-2.687-3-6-3z"
+                    ></path>
+                  </svg>
+                  Thêm sinh viên
+                </a>
+              </div>
+            </li>
+            <!-- Thêm vào ngay sau </li> của Đổi mật khẩu -->
+            <li>
+              <a
+                href="/lophoc.html"
+                id="classListSidebar"
+                class="flex items-center px-4 py-2 rounded-lg font-medium"
+                style="background-color: #f0f2f5; color: #333333"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  ></path>
+                </svg>
+                Lớp học
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main id="mainContent" class="main-content flex-1 p-10">
+        <div
+          id="centerNotification"
+          class="hidden fixed top-[45%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-100 text-red-600 px-6 py-3 rounded-md shadow-lg text-xl font-medium z-1000"
+        ></div>
+        <div
+          id="errorMessage"
+          class="hidden text-red-600 text-center mt-4 font-medium"
+        ></div>
+        <header>
+          <div class="flex items-center space-x-2">
+            <span
+              id="userRoleHeader"
+              class="text-white font-medium hidden"
+            ></span>
+            <button
+              id="loginButton"
+              class="login-btn hidden"
+              aria-label="Đăng nhập"
+            >
+              <svg
+                class="w-4 h-4 mr-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                ></path>
+              </svg>
+              Đăng nhập
+            </button>
+            <button id="logoutButton" class="logout-btn" aria-label="Đăng xuất">
+              <svg
+                class="w-5 h-5 mr-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 16l-4-4m0 0l-4-4m4 4H7m5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                ></path>
+              </svg>
+              Đăng xuất
+            </button>
+          </div>
+        </header>
+
+        <div
+          class="max-w-full mx-auto px-2 grid grid-cols-1 lg:grid-cols-[65%,35%] gap-10"
+        >
+          <div
+            class="bg-white rounded-xl shadow-md p-6 border border-gray-200 flex flex-col space-y-8"
+          >
+            <div class="flex flex-wrap gap-6">
+              <button
+                id="checkButton"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition flex items-center disabled:bg-gray-400"
+                disabled
+                aria-label="Kiểm tra mã nguồn"
+              >
+                <svg
+                  class="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                Kiểm tra mã
+              </button>
+              <button
+                id="uploadButton"
+                class="bg-teal-500 text-white px-4 py-2 rounded-md font-medium hover:bg-teal-600 transition flex items-center"
+                aria-label="Tải file mã nguồn"
+              >
+                <svg
+                  class="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                  ></path>
+                </svg>
+                Tải file
+              </button>
+              <button
+                id="historyButton"
+                class="bg-gray-500 text-white px-4 py-2 rounded-md font-medium hover:bg-gray-600 transition flex items-center disabled:bg-gray-400"
+                disabled
+                aria-label="Xem lịch sử kiểm tra"
+              >
+                <svg
+                  class="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                Xem lịch sử
+              </button>
+              <button
+                id="submitExerciseButton"
+                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200 hidden"
+              >
+                Nộp bài
+              </button>
+            </div>
+            <input type="file" id="uploadFile" accept=".html,.css,.js" hidden />
+            <div id="codeSets" class="space-y-6">
+              <div class="code-set bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                  Mã nguồn
+                </h3>
+                <div class="flex flex-wrap gap-6 mb-4">
+                  <label class="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="language-0"
+                      value="HTML"
+                      class="html-checkbox h-5 w-5 text-blue-600 rounded"
+                    />
+                    <span class="text-gray-700 font-medium">HTML</span>
+                  </label>
+                  <label class="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="language-0"
+                      value="CSS"
+                      class="css-checkbox h-5 w-5 text-blue-600 rounded"
+                    />
+                    <span class="text-gray-700 font-medium">CSS</span>
+                  </label>
+                  <label class="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="language-0"
+                      value="JavaScript"
+                      class="js-checkbox h-5 w-5 text-blue-600 rounded"
+                    />
+                    <span class="text-gray-700 font-medium">JavaScript</span>
+                  </label>
+                </div>
+                <div class="space-y-4">
+                  <div>
+                    <label
+                      for="html-editor-0"
+                      class="block text-sm font-medium text-gray-700"
+                      >Mã HTML:</label
+                    >
+                    <div
+                      id="html-editor-0"
+                      class="html-editor editor-container"
+                      data-editor-type="html"
+                    ></div>
+                  </div>
+                  <div>
+                    <label
+                      for="css-editor-0"
+                      class="block text-sm font-medium text-gray-700"
+                      >Mã CSS:</label
+                    >
+                    <div
+                      id="css-editor-0"
+                      class="css-editor editor-container"
+                      data-editor-type="css"
+                    ></div>
+                  </div>
+                  <div>
+                    <label
+                      for="js-editor-0"
+                      class="block text-sm font-medium text-gray-700"
+                      >Mã JavaScript:</label
+                    >
+                    <div
+                      id="js-editor-0"
+                      class="js-editor editor-container"
+                      data-editor-type="javascript"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="bg-white rounded-xl shadow-md p-6 border border-gray-200 flex flex-col space-y-8"
+          >
+            <h3 class="text-lg font-semibold text-blue-600 flex items-center">
+              <svg
+                class="w-6 h-6 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                ></path>
+              </svg>
+              Gợi ý sửa lỗi
+            </h3>
+            <div id="suggestions" class="flex-1 overflow-y-auto">
+              <div class="overflow-x-auto">
+                <table
+                  id="suggestionTable"
+                  class="hidden w-full border-collapse"
+                >
+                  <thead>
+                    <tr>
+                      <th class="border p-2 text-left">Ngôn ngữ</th>
+                      <th class="border p-2 text-left">Loại lỗi</th>
+                      <th class="border p-2 text-left">Thông báo</th>
+                      <th class="border p-2 text-left">Dòng</th>
+                      <th class="border p-2 text-left">Gợi ý sửa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="suggestionTableBody"></tbody>
+                </table>
+              </div>
+
+              <div
+                id="noSuggestions"
+                class="text-center text-green-600 font-medium bg-green-100 p-4 rounded-md"
+              >
+                Chưa có lỗi để gợi ý!
+              </div>
+            </div>
+            <div class="w-full">
+              <div
+                class="bg-white rounded-xl shadow-md p-4 border border-gray-200"
+              >
+                <h3 class="text-lg font-semibold text-blue-600 mb-2">
+                  Trình bày
+                </h3>
+                <iframe
+                  id="preview"
+                  style="
+                    width: 100%;
+                    height: 400px;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 0.75rem;
+                  "
+                ></iframe>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="max-w-full mx-auto px-2 mt-10">
+          <div class="bg-white rounded-xl shadow-md p-4 border border-gray-200">
+            <div
+              id="statusBar"
+              class="text-base font-medium text-gray-600 bg-gray-50 p-4 rounded-md text-center mb-4"
+            >
+              Chưa kiểm tra
+            </div>
+            <div
+              id="loading"
+              class="hidden text-blue-600 font-medium text-center mb-4"
+            >
+              Đang kiểm tra...
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div
+      id="modalDangNhap"
+      class="modal hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div class="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full">
+        <h4 class="text-lg font-semibold text-gray-800 mb-4">Đăng nhập</h4>
+        <div class="space-y-6">
+          <div>
+            <label
+              for="tenDangNhap"
+              class="block text-lg font-medium text-gray-700"
+              >Tên đăng nhập</label
+            >
+            <input
+              id="tenDangNhap"
+              type="text"
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-600 focus:border-blue-600"
+              placeholder="Ví dụ: 1101210015"
+              required
+              aria-required="true"
+            />
+          </div>
+          <div>
+            <label for="matKhau" class="block text-lg font-medium text-gray-700"
+              >Mật khẩu</label
+            >
+            <input
+              id="matKhau"
+              type="password"
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-600 focus:border-blue-600"
+              required
+              aria-required="true"
+            />
+          </div>
+          <div id="loiDangNhap" class="text-red-600 text-sm hidden"></div>
+          <div class="flex justify-between">
+            <button
+              id="chuyenSangDangKyButton"
+              class="text-blue-600 hover:underline font-medium"
+              aria-label="Chuyển sang đăng ký"
+            >
+              Chưa có tài khoản? Đăng ký
+            </button>
+            <button
+              id="loginSubmitButton"
+              class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium"
+              aria-label="Xác nhận đăng nhập"
+            >
+              Đăng nhập
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="modalDangKy"
+      class="modal hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div class="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full">
+        <h4 class="text-lg font-semibold text-gray-800 mb-4">Đăng ký</h4>
+        <div class="space-y-6">
+          <div
+            id="registerSuccess"
+            class="hidden flex items-center justify-center mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg"
+          >
+            <svg
+              class="w-6 h-6 mr-2 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+            <span class="font-medium">Đăng ký thành công!</span>
+          </div>
+
+          <div id="registerFormContent" class="space-y-6">
+            <div>
+              <label
+                for="tenDangNhapDangKy"
+                class="block text-lg font-medium text-gray-700"
+                >Email</label
+              >
+              <input
+                id="tenDangNhapDangKy"
+                type="email"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-600 focus:border-blue-600"
+                placeholder="Ví dụ: example@gmail.com"
+                required
+                aria-required="true"
+              />
+              <small class="text-gray-600"
+                >Đây sẽ là email đăng nhập của bạn.</small
+              >
+            </div>
+            <div>
+              <label
+                for="matKhauDangKy"
+                class="block text-lg font-medium text-gray-700"
+                >Mật khẩu</label
+              >
+              <input
+                id="matKhauDangKy"
+                type="password"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-600 focus:border-blue-600"
+                required
+                aria-required="true"
+              />
+            </div>
+            <div>
+              <label
+                for="maXacNhanDangKy"
+                class="block text-lg font-medium text-gray-700"
+                >Mã xác nhận</label
+              >
+              <div class="flex items-center space-x-2">
+                <input
+                  id="maXacNhanDangKy"
+                  type="text"
+                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-600 focus:border-blue-600"
+                  placeholder="Nhập mã từ email"
+                  required
+                  aria-required="true"
+                />
+                <button
+                  id="sendVerificationCodeButton"
+                  class="bg-teal-500 text-white px-3 py-1 rounded-md hover:bg-teal-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  disabled
+                  aria-label="Gửi mã xác nhận"
+                >
+                  Gửi mã
+                </button>
+              </div>
+              <small class="text-gray-600"
+                >Mã sẽ được gửi từ email cá nhân của quản trị viên đến email bạn
+                vừa nhập.</small
+              >
+            </div>
+            <div>
+              <label class="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="isTeacherRole"
+                  class="h-5 w-5 text-blue-600 rounded"
+                />
+                <span class="text-gray-700 font-medium"
+                  >Đăng ký với vai trò Giảng viên</span
+                >
+              </label>
+              <small class="text-gray-600"
+                >Nếu không chọn, bạn sẽ được đăng ký với vai trò Sinh
+                viên.</small
+              >
+            </div>
+            <div id="loiDangKy" class="text-red-600 text-sm hidden"></div>
+            <div class="flex justify-between">
+              <button
+                id="chuyenSangDangNhapButton"
+                class="text-blue-600 hover:underline font-medium"
+                aria-label="Chuyển sang đăng nhập"
+              >
+                Đã có tài khoản? Đăng nhập
+              </button>
+              <button
+                id="registerSubmitButton"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium"
+                aria-label="Xác nhận đăng ký"
+              >
+                Đăng ký
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="modalThongBao"
+      class="modal hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div class="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full">
+        <h4 class="text-lg font-semibold text-gray-800 mb-4">Thông báo</h4>
+        <p id="thongBaoNoiDung" class="text-gray-600 mb-4"></p>
+        <div class="flex justify-end">
+          <button
+            id="dongThongBaoButton"
+            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            aria-label="Đóng thông báo"
+          >
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="detailModal"
+      class="modal hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div
+        class="bg-white p-6 rounded-xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto"
+      >
+        <h4 class="text-lg font-semibold text-gray-800 mb-4">
+          Chi tiết kiểm tra
+        </h4>
+        <pre
+          id="modalContent"
+          class="bg-gray-50 p-4 rounded-md text-sm overflow-x-auto"
+        ></pre>
+        <button
+          id="closeDetailModalButton"
+          class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          aria-label="Đóng chi tiết kiểm tra"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!-- Thay đổi mật khẩu -->
+
+    <!--  -->
+    <div id="editorContainer" style="height: 500px; margin-top: 20px"></div>
+    <!--  -->
+    <div
+      id="modalChangePassword"
+      class="modal hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div class="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full">
+        <h4 class="text-lg font-semibold text-gray-800 mb-4">Đổi Mật Khẩu</h4>
+        <div class="space-y-6">
+          <div>
+            <label
+              for="currentPassword"
+              class="block text-lg font-medium text-gray-700"
+              >Mật khẩu cũ</label
+            >
+            <input
+              id="currentPassword"
+              type="password"
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-600 focus:border-blue-600"
+              required
+              aria-required="true"
+            />
+          </div>
+          <div>
+            <label
+              for="newPassword"
+              class="block text-lg font-medium text-gray-700"
+              >Mật khẩu mới</label
+            >
+            <input
+              id="newPassword"
+              type="password"
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-600 focus:border-blue-600"
+              required
+              aria-required="true"
+            />
+          </div>
+          <div>
+            <label
+              for="confirmNewPassword"
+              class="block text-lg font-medium text-gray-700"
+              >Xác nhận mật khẩu mới</label
+            >
+            <input
+              id="confirmNewPassword"
+              type="password"
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-600 focus:border-blue-600"
+              required
+              aria-required="true"
+            />
+          </div>
+          <div
+            id="changePasswordError"
+            class="text-red-600 text-sm hidden"
+          ></div>
+          <div class="flex justify-end">
+            <button
+              id="cancelChangePasswordButton"
+              class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 mr-2"
+              aria-label="Hủy đổi mật khẩu"
+            >
+              Hủy
+            </button>
+            <button
+              id="changePasswordSubmitButton"
+              class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              aria-label="Xác nhận đổi mật khẩu"
+            >
+              Đổi mật khẩu
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="historyModal"
+      class="modal hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div
+        class="bg-white p-6 rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+      >
+        <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <svg
+            class="w-6 h-6 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          Lịch sử kiểm tra
+        </h4>
+        <div id="historyContent" class="mb-4">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="border p-2 text-left">Thời gian</th>
+                <th class="border p-2 text-left">Mã</th>
+                <th class="border p-2 text-left">Lỗi</th>
+                <th class="border p-2 text-left">Gợi ý AI</th>
+                <th class="border p-2 text-left">Hành động</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+          <div
+            id="noHistory"
+            class="text-center text-gray-600 font-medium bg-gray-50 p-4 rounded-md hidden"
+          >
+            Chưa có lịch sử kiểm tra!
+          </div>
+        </div>
+        <div class="flex justify-between">
+          <button
+            id="clearHistoryButton"
+            class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+            aria-label="Xóa lịch sử kiểm tra"
+          >
+            Xóa lịch sử
+          </button>
+          <button
+            id="closeHistoryModalButton"
+            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            aria-label="Đóng lịch sử kiểm tra"
+          >
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.app = window.app || {};
+      const roleMapping = {
+        admin: "QuanTri",
+        giang_vien: "GiangVien",
+        sinh_vien: "SinhVien",
+        QuanTri: "QuanTri",
+        GiangVien: "GiangVien",
+        SinhVien: "SinhVien",
+      };
+      (function () {
+        let isLoggedIn = false;
+        let editors = [];
+        let monacoInitialized = false;
+        let currentDecorations = [];
+
+        // Utility Functions
+        window.app = window.app || {}; // Định nghĩa namespace
+
+        function showNotification(message) {
+          const statusBar = document.getElementById("statusBar");
+          if (statusBar) {
+            statusBar.textContent = message;
+            statusBar.classList.remove(
+              "hidden",
+              "text-green-600",
+              "bg-green-100"
+            );
+            statusBar.classList.add("text-red-600", "bg-red-100");
+          }
+          const centerNotification =
+            document.getElementById("centerNotification");
+          if (centerNotification) {
+            centerNotification.textContent = message;
+            centerNotification.classList.remove("hidden");
+            setTimeout(() => {
+              centerNotification.classList.add("hidden");
+            }, 2500);
+          }
+        }
+
+        window.app.toggleModal = function (modalId, show = true) {
+          const modal = document.getElementById(modalId);
+          if (!modal) return;
+          modal.style.display = show ? "flex" : "none";
+          modal.classList.toggle("hidden", !show);
+        };
+
+        // Hàm hiển thị/ẩn nút Nộp bài
+        async function toggleSubmitButton() {
+          const submitButton = document.getElementById("submitExerciseButton");
+          const urlParams = new URLSearchParams(window.location.search);
+          const exerciseId =
+            urlParams.get("ma_bai_tap") || urlParams.get("exercise_id");
+          const isFromDoExercise =
+            sessionStorage.getItem("isFromDoExercise") === "true";
+
+          if (!submitButton) {
+            console.error("submitExerciseButton not found!");
+            return;
+          }
+
+          if (!isFromDoExercise || !exerciseId) {
+            submitButton.classList.add("hidden");
+            return;
+          }
+
+          submitButton.classList.remove("hidden");
+          submitButton.textContent = "Nộp bài";
+          submitButton.classList.remove("opacity-50");
+          submitButton.disabled = false;
+        }
+        // Hàm nộp bài
+        // Hàm hiển thị thông báo thành công
+        function showSuccessMessage(message) {
+          const statusBar = document.getElementById("statusBar");
+          if (statusBar) {
+            statusBar.textContent = message;
+            statusBar.classList.remove("hidden", "text-red-600", "bg-red-100");
+            statusBar.classList.add("text-green-600", "bg-green-100");
+            setTimeout(() => {
+              statusBar.classList.add("hidden");
+            }, 3000);
+          }
+          const centerNotification =
+            document.getElementById("centerNotification");
+          if (centerNotification) {
+            centerNotification.textContent = message;
+            centerNotification.classList.remove("hidden");
+            setTimeout(() => {
+              centerNotification.classList.add("hidden");
+            }, 3000);
+          }
+        }
+
+        // Hàm hiển thị thông báo lỗi
+        function showErrorMessage(message) {
+          const errorMessage = document.getElementById("errorMessage");
+          if (errorMessage) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove("hidden");
+            setTimeout(() => {
+              errorMessage.classList.add("hidden");
+            }, 3000);
+          }
+          const centerNotification =
+            document.getElementById("centerNotification");
+          if (centerNotification) {
+            centerNotification.textContent = message;
+            centerNotification.classList.remove("hidden");
+            setTimeout(() => {
+              centerNotification.classList.add("hidden");
+            }, 3000);
+          }
+        }
+
+        // Hàm kiểm tra và làm mới token
+        async function checkAndRefreshToken() {
+          const token = localStorage.getItem("access_token");
+          const refreshToken = localStorage.getItem("refresh_token");
+          if (!token) {
+            showNotification("Vui lòng đăng nhập để tiếp tục!");
+            window.app.toggleModal("modalDangNhap", true);
+            return null;
+          }
+          try {
+            const response = await fetch(
+              `http://127.0.0.1:8000/check_token/?_=${Date.now()}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+                cache: "no-store",
+              }
+            );
+            if (!response.ok) {
+              if (response.status === 401 && refreshToken) {
+                const refreshResponse = await fetch(
+                  "http://127.0.0.1:8000/refresh_token/",
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: `refresh_token=${encodeURIComponent(refreshToken)}`,
+                  }
+                );
+                if (refreshResponse.ok) {
+                  const data = await refreshResponse.json();
+                  localStorage.setItem("access_token", data.access_token);
+                  localStorage.setItem("refresh_token", data.refresh_token);
+                  return data.access_token;
+                } else {
+                  showNotification(
+                    "Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại!"
+                  );
+                  window.app.toggleModal("modalDangNhap", true);
+                  return null;
+                }
+              } else {
+                throw new Error("Lỗi xác thực token");
+              }
+            }
+            return token;
+          } catch (err) {
+            console.error("Lỗi kiểm tra token:", err);
+            showNotification(
+              "Đã xảy ra lỗi khi xác thực. Vui lòng đăng nhập lại!"
+            );
+            return null;
+          }
+        }
+
+        // Hàm nộp bài
+        async function submitExercise() {
+          const submitButton = document.getElementById("submitExerciseButton");
+          if (!submitButton || submitButton.disabled) {
+            showNotification("Bài tập đã được nộp hoặc không thể nộp lúc này!");
+            return;
+          }
+
+          const urlParams = new URLSearchParams(window.location.search);
+          const exerciseId =
+            urlParams.get("ma_bai_tap") || sessionStorage.getItem("exerciseId");
+          if (!exerciseId) {
+            showNotification("Không tìm thấy mã bài tập!");
+            return;
+          }
+
+          try {
+            const token = await checkAndRefreshToken();
+            if (!token) {
+              showNotification("Vui lòng đăng nhập lại!");
+              return;
+            }
+
+            const formData = new FormData();
+            formData.append(
+              "submission",
+              JSON.stringify({
+                html: editors[0].html.getValue() || "",
+                css: editors[0].css.getValue() || "",
+                js: editors[0].js.getValue() || "",
+              })
+            );
+            const uploadFileInput = document.getElementById("uploadFile");
+            if (uploadFileInput.files[0]) {
+              formData.append("submission_file", uploadFileInput.files[0]);
+            }
+
+            // Gửi yêu cầu nộp bài
+            const response = await fetch(
+              `http://127.0.0.1:8000/exercises/${exerciseId}/submit/`,
+              {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData,
+              }
+            );
+
+            if (response.ok) {
+              const data = await response.json();
+              showSuccessMessage("Nộp bài thành công!");
+              submitButton.textContent = "Đã nộp";
+              submitButton.classList.add("opacity-50");
+              submitButton.disabled = true;
+              localStorage.setItem(`exercise_${exerciseId}_submitted`, "true");
+
+              setTimeout(() => {
+                window.location.href = `/chitietBT?ma_bai_tap=${exerciseId}`;
+              }, 1000);
+            } else {
+              const errorData = await response.text();
+              console.error("Submission error:", errorData);
+              showErrorMessage("Lỗi khi nộp bài: " + errorData);
+            }
+          } catch (err) {
+            console.error("Error submitting exercise:", err);
+            showErrorMessage(
+              "Không thể nộp bài! Vui lòng kiểm tra kết nối hoặc endpoint."
+            );
+          }
+        }
+        // Hàm nộp bài
+        // Khởi tạo các editor Monaco
+        async function initializeEditors() {
+          console.log("Initializing editors...");
+          try {
+            if (monacoInitialized) {
+              console.log("Editors already initialized");
+              createEditorsForExistingSets();
+              return;
+            }
+            await initializeMonaco();
+            console.log("Editors initialized successfully");
+          } catch (error) {
+            console.error("Failed to initialize editors:", error);
+            throw new Error("Không thể khởi tạo Monaco Editor!");
+          }
+        }
+
+        // Cập nhật hàm initializePage
+        async function initializePage() {
+          console.log("Initializing page...");
+          try {
+            await checkLoginStatus();
+            await initializeEditors();
+            await loadExerciseContentFromSession();
+            initializeEvents();
+            setupEditorChangeListeners();
+            toggleSubmitButton();
+
+            const elements = {
+              checkButton: document.getElementById("checkButton"),
+              uploadButton: document.getElementById("uploadButton"),
+              uploadFile: document.getElementById("uploadFile"),
+              historyButton: document.getElementById("historyButton"),
+              submitExerciseButton: document.getElementById(
+                "submitExerciseButton"
+              ),
+            };
+
+            const missingElements = Object.entries(elements)
+              .filter(([_, el]) => !el)
+              .map(([id]) => id);
+
+            if (missingElements.length) {
+              console.error(`Missing elements: ${missingElements.join(", ")}`);
+              showNotification("Lỗi giao diện, vui lòng tải lại trang!");
+              return;
+            }
+
+            elements.checkButton.addEventListener("click", checkCode);
+            elements.uploadButton.addEventListener("click", uploadFile); // Gắn sự kiện cho nút "Tải file"
+            elements.uploadFile.addEventListener("change", handleFileUpload); // Gắn sự kiện cho input file
+            elements.historyButton.addEventListener("click", showHistory);
+            elements.submitExerciseButton.addEventListener(
+              "click",
+              submitExercise
+            );
+
+            console.log("Page initialized successfully");
+          } catch (error) {
+            console.error("Error in initializePage:", error);
+            showNotification("Lỗi khi khởi tạo trang!");
+          }
+        }
+        // Cập nhật luồng khởi tạo cuối IIFE
+        document.addEventListener("DOMContentLoaded", async () => {
+          console.log("DOMContentLoaded: Initializing page...");
+          try {
+            await initializePage();
+            console.log("Page initialization complete");
+          } catch (error) {
+            console.error("Error in DOMContentLoaded:", error);
+            showNotification("Lỗi khi tải trang!");
+          }
+        });
+        // Xóa cờ khi reload trang
+        window.addEventListener("beforeunload", () => {
+          sessionStorage.removeItem("isFromDoExercise");
+        });
+
+        // Navigation Functions
+        function navigateToCreateClass(event) {
+          event.preventDefault();
+          const token = localStorage.getItem("access_token");
+          if (!token) {
+            showNotification("Vui lòng đăng nhập để tạo lớp học!");
+            toggleModal("modalDangNhap", true);
+            return;
+          }
+
+          fetch("http://127.0.0.1:8000/check_token", {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+            .then((response) => {
+              if (!response.ok) throw new Error("Token không hợp lệ");
+              return response.json();
+            })
+            .then((data) => {
+              const vaiTro = data.vai_tro;
+              if (vaiTro === "GiangVien" || vaiTro === "QuanTri") {
+                window.location.href = "/taolophoc";
+              } else {
+                showNotification("Bạn không có quyền tạo lớp học!");
+              }
+            })
+            .catch((error) => {
+              console.error("Error checking token:", error);
+              showNotification(
+                "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!"
+              );
+              localStorage.removeItem("access_token");
+              checkLoginStatus();
+            });
+        }
+
+        function navigateToClassList(event) {
+          event.preventDefault();
+          const token = localStorage.getItem("access_token");
+          if (!token) {
+            showNotification("Vui lòng đăng nhập để xem danh sách lớp!");
+            toggleModal("modalDangNhap", true);
+            return;
+          }
+
+          fetch("http://127.0.0.1:8000/check_token", {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+            .then((response) => {
+              if (!response.ok) throw new Error("Token không hợp lệ");
+              return response.json();
+            })
+            .then((data) => {
+              const vaiTro = data.vai_tro;
+              if (vaiTro === "GiangVien" || vaiTro === "QuanTri") {
+                window.location.href = "/danhsachlop";
+              } else {
+                showNotification("Bạn không có quyền xem danh sách lớp!");
+              }
+            })
+            .catch((error) => {
+              console.error("Error checking token:", error);
+              showNotification(
+                "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!"
+              );
+              localStorage.removeItem("access_token");
+              checkLoginStatus();
+            });
+        }
+
+        function navigateToCreateExercise(event) {
+          event.preventDefault();
+          const token = localStorage.getItem("access_token");
+          if (!token) {
+            showNotification("Vui lòng đăng nhập để tạo bài tập!");
+            toggleModal("modalDangNhap", true);
+            return;
+          }
+
+          fetch("http://127.0.0.1:8000/check_token", {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+            .then((response) => {
+              if (!response.ok) throw new Error("Token không hợp lệ");
+              return response.json();
+            })
+            .then((data) => {
+              const vaiTro = data.vai_tro;
+              if (vaiTro === "GiangVien" || vaiTro === "QuanTri") {
+                window.location.href = "/taobaitap";
+              } else {
+                showNotification("Bạn không có quyền tạo bài tập!");
+              }
+            })
+            .catch((error) => {
+              console.error("Error checking token:", error);
+              showNotification(
+                "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!"
+              );
+              localStorage.removeItem("access_token");
+              checkLoginStatus();
+            });
+        }
+        async function navigateToExerciseList(event) {
+          event.preventDefault();
+          let token = localStorage.getItem("access_token");
+          if (!token) {
+            showNotification("Vui lòng đăng nhập để xem danh sách bài tập!");
+            toggleModal("modalDangNhap", true);
+            return;
+          }
+
+          try {
+            const response = await fetch("http://127.0.0.1:8000/check_token", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!response.ok) {
+              if (response.status === 401) {
+                const refreshToken = localStorage.getItem("refresh_token");
+                if (refreshToken) {
+                  const refreshResponse = await fetch(
+                    "http://127.0.0.1:8000/refresh_token",
+                    {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ refresh_token: refreshToken }),
+                    }
+                  );
+                  if (refreshResponse.ok) {
+                    const refreshData = await refreshResponse.json();
+                    localStorage.setItem(
+                      "access_token",
+                      refreshData.access_token
+                    );
+                    if (refreshData.refresh_token) {
+                      localStorage.setItem(
+                        "refresh_token",
+                        refreshData.refresh_token
+                      );
+                    }
+                    token = refreshData.access_token;
+                  } else {
+                    throw new Error("Không thể làm mới token");
+                  }
+                }
+              } else {
+                throw new Error("Lỗi xác thực");
+              }
+            }
+            const data = await response.json();
+            const vaiTro = data.vai_tro;
+            if (vaiTro === "GiangVien" || vaiTro === "QuanTri") {
+              window.location.href = "/danhsachbaitap"; // Thay đổi thành dsBT.html
+            } else {
+              showNotification("Bạn không có quyền xem danh sách bài tập!");
+            }
+          } catch (error) {
+            console.error("Error checking token:", error);
+            showNotification(
+              "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!"
+            );
+            localStorage.removeItem("access_token");
+            checkLoginStatus();
+          }
+        }
+
+        // Monaco Editor Initialization
+        function initializeMonaco(retryCount = 3) {
+          console.log("Initializing Monaco...");
+          return new Promise((resolve, reject) => {
+            if (window.monacoInitialized) {
+              console.log("Monaco already initialized");
+              resolve();
+              return;
+            }
+            if (typeof require === "undefined") {
+              console.error(
+                "RequireJS not loaded. Ensure loader.min.js is included."
+              );
+              if (retryCount > 0) {
+                console.log(`Retrying... (${retryCount} attempts left)`);
+                setTimeout(() => {
+                  initializeMonaco(retryCount - 1)
+                    .then(resolve)
+                    .catch(reject);
+                }, 2000);
+                return;
+              }
+              showNotification("Lỗi: RequireJS chưa tải!");
+              reject(new Error("RequireJS not available"));
+              return;
+            }
+            require.config({
+              paths: {
+                vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs",
+              },
+            });
+            require(["vs/editor/editor.main"], () => {
+              console.log("Monaco loaded successfully");
+              window.monacoInitialized = true;
+              createEditorsForExistingSets();
+              resolve();
+            }, (err) => {
+              console.error("Monaco load error:", err);
+              if (retryCount > 0) {
+                console.log(`Retrying... (${retryCount} attempts left)`);
+                setTimeout(() => {
+                  initializeMonaco(retryCount - 1)
+                    .then(resolve)
+                    .catch(reject);
+                }, 2000);
+                return;
+              }
+              showNotification("Không thể tải Monaco Editor!");
+              reject(new Error("Không thể khởi tạo Monaco Editor!"));
+            });
+          });
+        }
+
+        // Cập nhật loadExerciseContentFromSession
+        async function loadExerciseContentFromSession() {
+          console.log("loadExerciseContentFromSession called");
+          const urlParams = new URLSearchParams(window.location.search);
+          const exerciseId = urlParams.get("exercise_id");
+          const isFromDoExercise =
+            sessionStorage.getItem("isFromDoExercise") === "true";
+
+          if (!isFromDoExercise || !exerciseId) {
+            console.log("No session data or exerciseId, resetting editors");
+            resetEditors();
+            return;
+          }
+
+          const setIndex = 0;
+          try {
+            // Kiểm tra editor sẵn sàng
+            if (
+              !editors[setIndex] ||
+              !editors[setIndex].html ||
+              !editors[setIndex].css ||
+              !editors[setIndex].js
+            ) {
+              throw new Error("Editor không sẵn sàng");
+            }
+
+            const exerciseContent = sessionStorage.getItem("exerciseContent");
+            if (!exerciseContent) {
+              throw new Error("No exerciseContent in sessionStorage");
+            }
+
+            const parsedContent = JSON.parse(exerciseContent);
+            console.log("Parsed exerciseContent:", parsedContent);
+
+            if (parsedContent.exerciseId !== exerciseId) {
+              throw new Error("exerciseId mismatch in sessionStorage");
+            }
+
+            const {
+              html = "",
+              css = "",
+              js = "",
+              activeSources = {},
+              language = "html",
+            } = parsedContent;
+
+            // Gán nội dung vào editor
+            editors[setIndex].html.setValue(html);
+            editors[setIndex].css.setValue(css);
+            editors[setIndex].js.setValue(js);
+
+            // Format code
+            editors[setIndex].html.trigger(
+              "editor",
+              "editor.action.formatDocument"
+            );
+            editors[setIndex].css.trigger(
+              "editor",
+              "editor.action.formatDocument"
+            );
+            editors[setIndex].js.trigger(
+              "editor",
+              "editor.action.formatDocument"
+            );
+
+            // Cập nhật checkbox
+            const codeSet = document.querySelectorAll(".code-set")[setIndex];
+            if (codeSet) {
+              codeSet.querySelector(".html-checkbox").checked =
+                activeSources.html || false;
+              codeSet.querySelector(".css-checkbox").checked =
+                activeSources.css || false;
+              codeSet.querySelector(".js-checkbox").checked =
+                activeSources.js || false;
+            }
+
+            console.log("Content loaded successfully:", parsedContent);
+            updatePreview();
+            toggleSubmitButton();
+          } catch (error) {
+            console.error("Error loading session content:", error);
+            showNotification("Lỗi khi tải nội dung bài tập!");
+            resetEditors();
+          }
+        }
+        // Hàm reset editor
+        function resetEditors() {
+          const setIndex = 0;
+          if (editors[setIndex]) {
+            if (editors[setIndex].html) editors[setIndex].html.setValue("");
+            if (editors[setIndex].css) editors[setIndex].css.setValue("");
+            if (editors[setIndex].js) editors[setIndex].js.setValue("");
+          }
+          const codeSet = document.querySelectorAll(".code-set")[setIndex];
+          if (codeSet) {
+            codeSet.querySelector(".html-checkbox").checked = false;
+            codeSet.querySelector(".css-checkbox").checked = false;
+            codeSet.querySelector(".js-checkbox").checked = false;
+          }
+          console.log("Editors and checkboxes reset");
+        }
+
+        function createEditorsForExistingSets() {
+          const codeSets = document.querySelectorAll(".code-set");
+          console.log("Creating editors for", codeSets.length, "code sets");
+          codeSets.forEach((set, setIndex) => {
+            if (editors[setIndex]) return;
+
+            editors[setIndex] = {};
+            const htmlEditorEl = set.querySelector(".html-editor");
+            const cssEditorEl = set.querySelector(".css-editor");
+            const jsEditorEl = set.querySelector(".js-editor");
+
+            if (htmlEditorEl) {
+              editors[setIndex].html = monaco.editor.create(htmlEditorEl, {
+                value: "",
+                language: "html",
+                theme: "vs-dark",
+                automaticLayout: true,
+                formatOnPaste: true,
+                formatOnType: true,
+                trimAutoWhitespace: true,
+              });
+              console.log(`HTML editor created for set ${setIndex + 1}`);
+            }
+            if (cssEditorEl) {
+              editors[setIndex].css = monaco.editor.create(cssEditorEl, {
+                value: "",
+                language: "css",
+                theme: "vs-dark",
+                automaticLayout: true,
+                formatOnPaste: true,
+                formatOnType: true,
+                trimAutoWhitespace: true,
+              });
+              console.log(`CSS editor created for set ${setIndex + 1}`);
+            }
+            if (jsEditorEl) {
+              editors[setIndex].js = monaco.editor.create(jsEditorEl, {
+                value: "",
+                language: "javascript",
+                theme: "vs-dark",
+                automaticLayout: true,
+                formatOnPaste: true,
+                formatOnType: true,
+                trimAutoWhitespace: true,
+              });
+              console.log(`JS editor created for set ${setIndex + 1}`);
+            }
+          });
+        }
+
+        // Authentication Functions
+        function logout() {
+          localStorage.removeItem("access_token");
+          isLoggedIn = false;
+          checkLoginStatus();
+        }
+
+        function chuyenSangDangKy() {
+          window.app.toggleModal("modalDangNhap", false);
+          window.app.toggleModal("modalDangKy", true);
+        }
+        function chuyenSangDangNhap() {
+          window.app.toggleModal("modalDangKy", false);
+          window.app.toggleModal("modalDangNhap", true);
+        }
+
+        function splitCode(content) {
+          let html = content;
+          let css = "";
+          let js = "";
+
+          const styleMatch = content.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+          if (styleMatch) {
+            css = styleMatch[1].trim();
+            html = html.replace(styleMatch[0], "").trim();
+          }
+
+          // Bỏ tách <script> vì đã xử lý ở backend
+          return { html, css, js };
+        }
+
+        // Kiểm tra mã
+        function checkCode() {
+          console.log("Check button clicked");
+          const token = localStorage.getItem("access_token");
+          console.log("Token:", token);
+          if (!token) {
+            console.log("No token, showing login modal");
+            showNotification("Vui lòng đăng nhập để kiểm tra mã!");
+            toggleModal("modalDangNhap", true);
+            return;
+          }
+
+          const codeSets = document.querySelectorAll(".code-set");
+          console.log("Code sets:", codeSets.length);
+          const statusBar = document.getElementById("statusBar");
+          const loading = document.getElementById("loading");
+          if (!codeSets.length || !statusBar || !loading) {
+            console.error("Missing required elements");
+            return;
+          }
+
+          // In mã HTML để kiểm tra
+          codeSets.forEach((set, index) => {
+            if (editors[index]?.html) {
+              console.log(
+                `Raw HTML input for set ${index + 1}:\n`,
+                editors[index].html.getValue()
+              );
+            }
+          });
+
+          let hasSelectedLanguage = false;
+          codeSets.forEach((set) => {
+            const htmlChecked = set.querySelector(".html-checkbox").checked;
+            const cssChecked = set.querySelector(".css-checkbox").checked;
+            const jsChecked = set.querySelector(".js-checkbox").checked;
+            if (htmlChecked || cssChecked || jsChecked) {
+              hasSelectedLanguage = true;
+            }
+          });
+
+          if (!hasSelectedLanguage) {
+            console.log("No language selected");
+            showNotification("Vui lòng chọn ít nhất một ngôn ngữ để kiểm tra!");
+            return;
+          }
+
+          let hasCode = false;
+          codeSets.forEach((set, index) => {
+            const htmlChecked = set.querySelector(".html-checkbox").checked;
+            const cssChecked = set.querySelector(".css-checkbox").checked;
+            const jsChecked = set.querySelector(".js-checkbox").checked;
+
+            if (htmlChecked && editors[index]?.html?.getValue()?.trim()) {
+              hasCode = true;
+            }
+            if (cssChecked && editors[index]?.css?.getValue()?.trim()) {
+              hasCode = true;
+            }
+            if (jsChecked && editors[index]?.js?.getValue()?.trim()) {
+              hasCode = true;
+            }
+          });
+
+          if (!hasCode) {
+            console.log("No code entered for selected languages");
+            showNotification(
+              "Chưa có đoạn mã nào để kiểm tra. Vui lòng nhập mã!"
+            );
+            return;
+          }
+
+          statusBar.classList.add("hidden");
+          loading.classList.remove("hidden");
+
+          const codeData = [];
+          codeSets.forEach((set, index) => {
+            const htmlChecked = set.querySelector(".html-checkbox").checked;
+            const cssChecked = set.querySelector(".css-checkbox").checked;
+            const jsChecked = set.querySelector(".js-checkbox").checked;
+
+            if (htmlChecked || cssChecked || jsChecked) {
+              const setData = {};
+              if (htmlChecked && editors[index]?.html) {
+                // Loại bỏ các dòng trống ở đầu HTML
+                let htmlContent = editors[index].html.getValue();
+                setData.html = htmlContent.replace(/^\s*\n+/, "");
+              }
+              if (cssChecked && editors[index]?.css)
+                setData.css = editors[index].css.getValue();
+              if (jsChecked && editors[index]?.js)
+                setData.js = editors[index].js.getValue();
+              codeData.push(setData);
+            }
+          });
+
+          const codes = codeData.map((set) => ({
+            html: set.html || "",
+            css: set.css || "",
+            js: set.js || "",
+            languages: [
+              ...(set.html ? ["HTML"] : []),
+              ...(set.css ? ["CSS"] : []),
+              ...(set.js ? ["JavaScript"] : []),
+            ],
+          }));
+
+          console.log("Sending data:", { codes });
+
+          fetch("http://127.0.0.1:8000/check_code", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ codes }),
+          })
+            .then((response) => {
+              console.log("Response status:", response.status);
+              if (!response.ok) {
+                return response.text().then((text) => {
+                  throw new Error(`HTTP ${response.status}: ${text}`);
+                });
+              }
+              return response.json();
+            })
+            .then((data) => {
+              loading.classList.add("hidden");
+              statusBar.classList.remove("hidden");
+              statusBar.textContent = "Kiểm tra hoàn tất!";
+              statusBar.classList.add("text-green-600", "bg-green-100");
+              displaySuggestions(data[0]?.errors || []);
+            });
+        }
+
+        // Hiển thị gợi ý lỗi
+        function displaySuggestions(suggestions) {
+          console.log("Received suggestions:", suggestions); // Thêm log để kiểm tra
+          const suggestionTable = document.getElementById("suggestionTable");
+          const suggestionTableBody = document.getElementById(
+            "suggestionTableBody"
+          );
+          const noSuggestions = document.getElementById("noSuggestions");
+          if (!suggestionTable || !suggestionTableBody || !noSuggestions)
+            return;
+
+          suggestionTableBody.innerHTML = "";
+          suggestionTable.classList.add("hidden");
+          noSuggestions.classList.remove("hidden");
+
+          if (!Array.isArray(suggestions) || suggestions.length === 0) {
+            noSuggestions.textContent = "Chưa có lỗi để gợi ý!";
+            return;
+          }
+
+          suggestions.forEach((suggestion) => {
+            const row = document.createElement("tr");
+            row.className = "cursor-pointer hover:bg-gray-100";
+            row.innerHTML = `
+      <td class="py-2 px-4 border-b">${suggestion.language || "N/A"}</td>
+      <td class="py-2 px-4 border-b">${suggestion.type || "N/A"}</td>
+      <td class="py-2 px-4 border-b">${
+        suggestion.message || "Lỗi không xác định"
+      }</td>
+      <td class="py-2 px-4 border-b">${suggestion.line || "N/A"}</td>
+      <td class="py-2 px-4 border-b">${
+        suggestion.suggestion || "Không có gợi ý"
+      }</td>
+    `;
+            row.onclick = () => {
+              console.log("Clicked suggestion:", suggestion);
+              if (suggestion.line && !isNaN(parseInt(suggestion.line))) {
+                highlightErrorLine(suggestion);
+              } else {
+                console.warn("Invalid line number:", suggestion.line);
+                showNotification("Không thể làm nổi bật: Dòng không hợp lệ!");
+              }
+            };
+            suggestionTableBody.appendChild(row);
+          });
+
+          suggestionTable.classList.remove("hidden");
+          noSuggestions.classList.add("hidden");
+        }
+
+        function highlightErrorLine(suggestion) {
+          const { language, line, message } = suggestion;
+          const setIndex = 0;
+          const editorIndex = setIndex;
+
+          let targetEditor;
+          if (language === "HTML" && editors[editorIndex]?.html) {
+            targetEditor = editors[editorIndex].html;
+          } else if (language === "CSS" && editors[editorIndex]?.css) {
+            targetEditor = editors[editorIndex].css;
+          } else if (language === "JavaScript" && editors[editorIndex]?.js) {
+            targetEditor = editors[editorIndex].js;
+          }
+
+          if (!targetEditor) {
+            console.error(
+              `No editor found for language ${language}. Editors:`,
+              editors[editorIndex]
+            );
+            showNotification(`Không tìm thấy editor cho ${language}!`);
+            return;
+          }
+
+          // Xóa decoration cũ
+          currentDecorations = targetEditor.deltaDecorations(
+            currentDecorations,
+            []
+          );
+
+          const lineNumber = parseInt(line);
+          if (isNaN(lineNumber) || lineNumber < 1) {
+            console.warn(`Invalid line number: ${line}`);
+            showNotification("Dòng không hợp lệ, không thể làm nổi bật!");
+            return;
+          }
+
+          // Lưu trạng thái lỗi
+          window.app.errorStates = window.app.errorStates || {};
+          window.app.errorStates[`${language}_${lineNumber}`] = {
+            message: message,
+            isActive: true,
+          };
+
+          // Thêm decoration với cấu hình rõ ràng hơn
+          currentDecorations = targetEditor.deltaDecorations(
+            [],
+            [
+              {
+                range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+                options: {
+                  isWholeLine: true,
+                  className: "errorHighlight",
+                  hoverMessage: { value: message || "Lỗi không xác định" },
+                  glyphMarginClassName: "errorHighlight",
+                  isWholeLineEditable: true,
+                  stickiness:
+                    monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTyping, // Đảm bảo decoration không cản trở khi gõ
+                },
+              },
+            ]
+          );
+
+          // Focus và đặt con trỏ ngay lập tức
+          targetEditor.setPosition({ lineNumber, column: 1 });
+          targetEditor.focus();
+          // Chọn toàn bộ dòng để sẵn sàng chỉnh sửa
+          targetEditor.setSelection({
+            startLineNumber: lineNumber,
+            startColumn: 1,
+            endLineNumber: lineNumber,
+            endColumn: targetEditor.getModel().getLineLength(lineNumber) + 1,
+          });
+        }
+        // Hiển thị chi tiết gợi ý
+        function showDetail(suggestion) {
+          const detailModal = document.getElementById("detailModal");
+          const modalContent = document.getElementById("modalContent");
+          if (!detailModal || !modalContent) return;
+
+          modalContent.textContent = JSON.stringify(suggestion, null, 2);
+          detailModal.style.display = "flex";
+          detailModal.classList.remove("hidden");
+        }
+
+        // Tải file mã nguồn
+        // Kích hoạt input file khi nhấn nút "Tải file"
+        function uploadFile() {
+          const uploadFileInput = document.getElementById("uploadFile");
+          if (!uploadFileInput) {
+            console.error("uploadFile input not found");
+            showNotification("Lỗi: Không tìm thấy input file!");
+            return;
+          }
+          uploadFileInput.click(); // Chỉ kích hoạt input file
+        }
+
+        // Xử lý file được tải lên
+        function handleFileUpload(event) {
+          console.log("handleFileUpload called");
+          const file = event.target.files[0];
+          if (!file) return;
+
+          const validExtensions = ["html", "css", "js"];
+          const extension = file.name.split(".").pop().toLowerCase();
+
+          if (!validExtensions.includes(extension)) {
+            showNotification(
+              `Định dạng file không được hỗ trợ! Chỉ chấp nhận: ${validExtensions.join(
+                ", "
+              )}`
+            );
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const content = e.target.result;
+            const codeSets = document.querySelectorAll(".code-set");
+            const currentSet = codeSets[codeSets.length - 1];
+            const setIndex = codeSets.length - 1;
+
+            if (!editors[setIndex]) {
+              console.error(`No editors found for set ${setIndex + 1}`);
+              showNotification("Editor chưa sẵn sàng!");
+              return;
+            }
+
+            if (extension === "html") {
+              const { html, css, js } = splitCode(content);
+              if (html && editors[setIndex].html) {
+                editors[setIndex].html.setValue(html);
+                currentSet.querySelector(".html-checkbox").checked = true;
+              }
+              if (css && editors[setIndex].css) {
+                editors[setIndex].css.setValue(css);
+                currentSet.querySelector(".css-checkbox").checked = true;
+              }
+              if (js && editors[setIndex].js) {
+                editors[setIndex].js.setValue(js);
+                currentSet.querySelector(".js-checkbox").checked = true;
+              }
+            } else if (extension === "css" && editors[setIndex].css) {
+              editors[setIndex].css.setValue(content);
+              currentSet.querySelector(".css-checkbox").checked = true;
+            } else if (extension === "js" && editors[setIndex].js) {
+              editors[setIndex].js.setValue(content);
+              currentSet.querySelector(".js-checkbox").checked = true;
+            }
+            updatePreview(); // Cập nhật preview sau khi tải file
+          };
+          reader.readAsText(file);
+        }
+        // Hiển thị lịch sử kiểm tra
+        async function showHistory() {
+          const historyModal = document.getElementById("historyModal");
+          const historyTableBody = document.getElementById("historyTableBody");
+          const noHistory = document.getElementById("noHistory");
+          if (!historyModal || !historyTableBody || !noHistory) return;
+
+          const token = localStorage.getItem("access_token");
+          if (!token) {
+            showNotification("Vui lòng đăng nhập để xem lịch sử!");
+            toggleModal("modalDangNhap", true);
+            return;
+          }
+
+          try {
+            const response = await fetch("http://127.0.0.1:8000/history/", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            if (!response.ok) {
+              const errorText = await response.text();
+              throw new Error(`Lỗi: ${response.status} - ${errorText}`);
+            }
+
+            const history = await response.json();
+            historyTableBody.innerHTML = "";
+
+            if (!Array.isArray(history) || history.length === 0) {
+              noHistory.classList.remove("hidden");
+              historyModal.style.display = "flex";
+              historyModal.classList.remove("hidden");
+              return;
+            }
+
+            noHistory.classList.add("hidden");
+            history.forEach((entry, index) => {
+              let codeData;
+              try {
+                codeData = JSON.parse(entry.code || "{}");
+              } catch (e) {
+                console.error("Lỗi parse entry.code:", e);
+                codeData = {};
+              }
+
+              const errors = entry.errors || [];
+
+              const row = document.createElement("tr");
+              row.innerHTML = `
+        <td class="border p-2">${new Date(entry.timestamp).toLocaleString(
+          "vi-VN"
+        )}</td>
+        <td class="border p-2">${
+          codeData.html || codeData.css || codeData.js
+            ? `HTML: ${codeData.html?.substring(0, 20)}${
+                codeData.html?.length > 20 ? "..." : ""
+              }, 
+               CSS: ${codeData.css?.substring(0, 20)}${
+                codeData.css?.length > 20 ? "..." : ""
+              }, 
+               JS: ${codeData.js?.substring(0, 20)}${
+                codeData.js?.length > 20 ? "..." : ""
+              }`
+            : "Không có mã"
+        }</td>
+        <td class="border p-2">${errors.length} lỗi, ${
+                aiSuggestions.length
+              } gợi ý AI</td>
+        <td class="border p-2">
+          <button class="view-detail text-blue-600 hover:underline" data-index="${index}" aria-label="Xem chi tiết lịch sử kiểm tra">Xem chi tiết</button>
+        </td>
+      `;
+              historyTableBody.appendChild(row);
+            });
+
+            historyModal.style.display = "flex";
+            historyModal.classList.remove("hidden");
+
+            document.querySelectorAll(".view-detail").forEach((button) => {
+              button.onclick = () => {
+                const index = button.dataset.index;
+                const entry = history[index];
+                const detailModal = document.getElementById("detailModal");
+                const modalContent = document.getElementById("modalContent");
+                if (!detailModal || !modalContent) return;
+
+                let parsedCode;
+                try {
+                  parsedCode = JSON.parse(entry.code || "{}");
+                } catch (e) {
+                  console.error("Lỗi parse entry.code trong chi tiết:", e);
+                  parsedCode = {};
+                }
+              };
+            });
+          } catch (error) {
+            console.error("Lỗi khi lấy lịch sử kiểm tra:", error);
+            showNotification(
+              "Không thể lấy lịch sử kiểm tra. Vui lòng thử lại!"
+            );
+            noHistory.classList.remove("hidden");
+            historyModal.style.display = "flex";
+            historyModal.classList.remove("hidden");
+          }
+        }
+
+        // Xóa lịch sử kiểm tra
+        // Xóa lịch sử kiểm tra
+        async function clearHistory() {
+          const historyModal = document.getElementById("historyModal");
+          const noHistory = document.getElementById("noHistory");
+          const historyTableBody = document.getElementById("historyTableBody");
+          if (!historyModal || !noHistory || !historyTableBody) return;
+
+          const token = localStorage.getItem("access_token");
+          if (!token) {
+            showNotification("Vui lòng đăng nhập để xóa lịch sử!");
+            toggleModal("modalDangNhap", true);
+            return;
+          }
+
+          try {
+            const response = await fetch(
+              "http://127.0.0.1:8000/clear_history/",
+              {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            if (!response.ok) {
+              throw new Error(
+                `Lỗi: ${response.status} - ${await response.text()}`
+              );
+            }
+
+            historyTableBody.innerHTML = "";
+            noHistory.classList.remove("hidden");
+            historyModal.style.display = "flex";
+            historyModal.classList.remove("hidden");
+            showNotification("Lịch sử kiểm tra đã được xóa thành công!");
+          } catch (error) {
+            console.error("Lỗi khi xóa lịch sử kiểm tra:", error);
+            showNotification(
+              "Không thể xóa lịch sử kiểm tra. Vui lòng thử lại!"
+            );
+          }
+        }
+
+        // Toggle Sub-Menu Buttons
+        function toggleInfoSubButtons() {
+          const infoSubButtons = document.getElementById("infoSubButtons");
+          if (infoSubButtons) {
+            infoSubButtons.style.display =
+              infoSubButtons.style.display === "block" ? "none" : "block";
+          }
+        }
+
+        function toggleExerciseSubButtons() {
+          const exerciseSubButtons =
+            document.getElementById("exerciseSubButtons");
+          if (exerciseSubButtons) {
+            exerciseSubButtons.style.display =
+              exerciseSubButtons.style.display === "block" ? "none" : "block";
+          }
+        }
+
+        function toggleClassSubButtons() {
+          const classSubButtons = document.getElementById("classSubButtons");
+          if (classSubButtons) {
+            classSubButtons.style.display =
+              classSubButtons.style.display === "block" ? "none" : "block";
+          }
+        }
+
+        // Toggle Sub-Menu Buttons
+        function toggleAccountSubButtons(event) {
+          event.preventDefault();
+          console.log("toggleAccountSubButtons called"); // Debug
+          const accountSubButtons =
+            document.getElementById("accountSubButtons");
+          if (accountSubButtons) {
+            console.log("Current classList:", accountSubButtons.classList); // Debug
+            accountSubButtons.classList.toggle("active");
+            console.log("After toggle classList:", accountSubButtons.classList); // Debug
+          } else {
+            console.error("accountSubButtons not found"); // Debug
+          }
+        }
+        // Đăng nhập
+        async function checkLoginStatus() {
+          const token = localStorage.getItem("access_token");
+          const refreshToken = localStorage.getItem("refresh_token");
+          const elements = {
+            loginButton: document.getElementById("loginButton"),
+            logoutButton: document.getElementById("logoutButton"),
+            userName: document.getElementById("userName"),
+            userEmail: document.getElementById("userEmail"),
+            userRole: document.getElementById("userRole"),
+            userRoleHeader: document.getElementById("userRoleHeader"),
+            checkButton: document.getElementById("checkButton"),
+            historyButton: document.getElementById("historyButton"),
+            viewInfoSidebar: document.getElementById("viewInfoSidebar"),
+            infoSubButtons: document.getElementById("infoSubButtons"),
+            manageExerciseSidebar: document.getElementById(
+              "manageExerciseSidebar"
+            ),
+            manageClassSidebar: document.getElementById("manageClassSidebar"),
+            searchClassSidebar: document.getElementById("searchClassSidebar"),
+            sidebar: document.getElementById("sidebar"),
+            mainContent: document.getElementById("mainContent"),
+            userAvatar: document.getElementById("userAvatar"),
+            classListSidebar: document.getElementById("classListSidebar"),
+            changePasswordSidebar: document.getElementById(
+              "changePasswordSidebar"
+            ),
+            manageAccountSidebar: document.getElementById(
+              "manageAccountSidebar"
+            ),
+          };
+
+          const resetUI = () => {
+            isLoggedIn = false;
+            elements.loginButton.classList.remove("hidden");
+            elements.logoutButton.classList.add("hidden");
+            elements.userName.textContent = "Tên người dùng";
+            elements.userEmail.textContent = "email@example.com";
+            elements.userRole.textContent = "Vai trò: Chưa xác định";
+            elements.userRoleHeader.classList.add("hidden");
+            elements.checkButton.disabled = true;
+            elements.historyButton.disabled = true;
+            elements.viewInfoSidebar.classList.add("hidden");
+            elements.infoSubButtons.classList.add("none");
+            elements.manageExerciseSidebar.classList.add("hidden");
+            elements.manageClassSidebar.classList.add("hidden");
+            elements.searchClassSidebar.classList.add("hidden");
+            elements.classListSidebar.classList.add("hidden");
+            elements.changePasswordSidebar.classList.add("hidden");
+            elements.manageAccountSidebar.classList.add("hidden");
+            elements.sidebar.classList.add("hidden");
+            elements.mainContent.classList.remove("ml-[280px]");
+            elements.mainContent.classList.add("ml-0");
+            elements.userAvatar.src = "https://via.placeholder.com/50";
+          };
+
+          if (!token || token.trim() === "") {
+            console.log("No valid access token found, resetting UI");
+            resetUI();
+            return;
+          }
+
+          try {
+            console.log("Checking access token:", token);
+            const response = await fetch(
+              `http://127.0.0.1:8000/check_token?_=${Date.now()}`,
+              {
+                headers: { Authorization: `Bearer ${token.trim()}` },
+              }
+            );
+
+            if (!response.ok) {
+              if (
+                response.status === 401 &&
+                refreshToken &&
+                refreshToken.trim()
+              ) {
+                console.log(
+                  "Access token invalid, attempting to refresh with refresh token:",
+                  refreshToken
+                );
+                try {
+                  const refreshResponse = await fetch(
+                    "http://127.0.0.1:8000/refresh_token",
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        refresh_token: refreshToken.trim(),
+                      }),
+                    }
+                  );
+
+                  if (!refreshResponse.ok) {
+                    const errorText = await refreshResponse.text();
+                    console.error(
+                      `Refresh token failed: HTTP ${refreshResponse.status} - ${errorText}`
+                    );
+                    throw new Error(`Refresh token failed: ${errorText}`);
+                  }
+
+                  const refreshData = await refreshResponse.json();
+                  if (!refreshData.access_token) {
+                    throw new Error("No access token in refresh response");
+                  }
+                  localStorage.setItem(
+                    "access_token",
+                    refreshData.access_token
+                  );
+                  if (refreshData.refresh_token) {
+                    localStorage.setItem(
+                      "refresh_token",
+                      refreshData.refresh_token
+                    );
+                  }
+                  console.log(
+                    "Token refreshed successfully, retrying checkLoginStatus"
+                  );
+                  return await checkLoginStatus();
+                } catch (refreshError) {
+                  console.error("Refresh token error:", refreshError);
+                  localStorage.removeItem("access_token");
+                  localStorage.removeItem("refresh_token");
+                  resetUI();
+                  showNotification(
+                    "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!"
+                  );
+                  window.app.toggleModal("modalDangNhap", true);
+                  return;
+                }
+              } else {
+                const errorText = await response.text();
+                throw new Error(
+                  `Check token failed: HTTP ${response.status} - ${errorText}`
+                );
+              }
+            }
+
+            const data = await response.json();
+            console.log("check_token response:", data);
+
+            const roleMapping = {
+              QuanTri: "QuanTri",
+              GiangVien: "GiangVien",
+              SinhVien: "SinhVien",
+            };
+            data.vai_tro = roleMapping[data.vai_tro] || data.vai_tro;
+
+            isLoggedIn = true;
+            elements.loginButton.classList.add("hidden");
+            elements.logoutButton.classList.remove("hidden");
+
+            const displayName = data.ten_dang_nhap || "Tên người dùng";
+            elements.userName.textContent = displayName;
+            elements.userEmail.textContent = data.email || "email@example.com";
+            elements.userRole.textContent = `Vai trò: ${data.vai_tro}`;
+            elements.userRoleHeader.textContent = `Vai trò: ${data.vai_tro}`;
+            elements.userRoleHeader.classList.remove("hidden");
+            elements.checkButton.disabled = false;
+            elements.historyButton.disabled = false;
+
+            elements.userAvatar.src =
+              data.anh_dai_dien || "https://via.placeholder.com/50";
+
+            localStorage.setItem("display_name", displayName);
+            localStorage.setItem(
+              "userAvatar",
+              data.anh_dai_dien || "https://via.placeholder.com/50"
+            );
+            localStorage.setItem("ten_dang_nhap", data.ten_dang_nhap);
+            localStorage.setItem("vai_tro", data.vai_tro);
+
+            // Reset tất cả các thành phần trước khi áp dụng vai trò
+            elements.viewInfoSidebar.classList.add("hidden");
+            elements.infoSubButtons.classList.add("none");
+            elements.manageExerciseSidebar.classList.add("hidden");
+            elements.manageClassSidebar.classList.add("hidden");
+            elements.searchClassSidebar.classList.add("hidden");
+            elements.classListSidebar.classList.add("hidden");
+            elements.changePasswordSidebar.classList.add("hidden");
+            elements.manageAccountSidebar.classList.add("hidden");
+
+            // Áp dụng quyền dựa trên vai trò
+            if (data.vai_tro === "QuanTri") {
+              elements.viewInfoSidebar.classList.remove("hidden");
+              elements.infoSubButtons.classList.remove("none");
+              elements.manageExerciseSidebar.classList.remove("hidden");
+              elements.manageClassSidebar.classList.remove("hidden");
+              elements.searchClassSidebar.classList.remove("hidden");
+              elements.manageAccountSidebar.classList.remove("hidden");
+              document
+                .getElementById("teacherInfoButton")
+                .classList.remove("hidden"); // Thêm dòng này để hiển thị nút "Giảng viên"
+            } else if (data.vai_tro === "GiangVien") {
+              elements.viewInfoSidebar.classList.remove("hidden");
+              elements.infoSubButtons.classList.remove("none");
+              elements.manageExerciseSidebar.classList.remove("hidden");
+              elements.manageClassSidebar.classList.remove("hidden");
+              elements.searchClassSidebar.classList.remove("hidden");
+              elements.manageAccountSidebar.classList.remove("hidden");
+              document
+                .getElementById("teacherInfoButton")
+                .classList.add("hidden"); // Thêm dòng này để ẩn "Giảng viên"
+            } else if (data.vai_tro === "SinhVien") {
+              elements.viewInfoSidebar.classList.add("hidden"); // Ẩn "Xem thông tin"
+              elements.infoSubButtons.classList.add("none"); // Ẩn submenu
+              elements.searchClassSidebar.classList.remove("hidden");
+              elements.classListSidebar.classList.remove("hidden");
+            }
+
+            elements.changePasswordSidebar.classList.remove("hidden");
+            elements.sidebar.classList.remove("hidden");
+            elements.mainContent.classList.remove("ml-0");
+            elements.mainContent.classList.add("ml-[280px]");
+          } catch (error) {
+            console.error("Error in checkLoginStatus:", error);
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            resetUI();
+            showNotification(
+              `Lỗi xác thực: ${error.message}. Vui lòng đăng nhập lại!`
+            );
+            window.app.toggleModal("modalDangNhap", true);
+          }
+        }
+        // Đăng ký
+        function register() {
+          const tenDangNhap =
+            document.getElementById("tenDangNhapDangKy").value;
+          const matKhau = document.getElementById("matKhauDangKy").value;
+          const maXacNhan = document.getElementById("maXacNhanDangKy").value;
+          const isTeacher = document.getElementById("isTeacherRole").checked;
+          const loiDangKy = document.getElementById("loiDangKy");
+          const registerSuccess = document.getElementById("registerSuccess");
+          const registerFormContent = document.getElementById(
+            "registerFormContent"
+          );
+
+          if (!tenDangNhap || !matKhau || !maXacNhan) {
+            loiDangKy.textContent = "Vui lòng điền đầy đủ thông tin!";
+            loiDangKy.classList.remove("hidden");
+            return;
+          }
+
+          fetch("http://127.0.0.1:8000/dangky", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ten_dang_nhap: tenDangNhap,
+              mat_khau: matKhau,
+              ma_xac_nhan: maXacNhan,
+              vai_tro: isTeacher ? "giang_vien" : "sinh_vien", // Sai ở đây
+              email: tenDangNhap,
+            }),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                return response.json().then((err) => {
+                  throw new Error(err.detail || "Đăng ký thất bại");
+                });
+              }
+              return response.json();
+            })
+            .then(() => {
+              loiDangKy.classList.add("hidden");
+              registerFormContent.classList.add("hidden");
+              registerSuccess.classList.remove("hidden");
+              setTimeout(() => {
+                toggleModal("modalDangKy", false);
+                toggleModal("modalDangNhap", true);
+                registerFormContent.classList.remove("hidden");
+                registerSuccess.classList.add("hidden");
+              }, 2000);
+            })
+            .catch((error) => {
+              console.error("Lỗi đăng ký:", error);
+              loiDangKy.textContent = error.message;
+              loiDangKy.classList.remove("hidden");
+            });
+        }
+
+        function initializeChangePasswordEvents() {
+          const changePasswordSidebar = document.getElementById(
+            "changePasswordSidebar"
+          );
+          const cancelButton = document.getElementById(
+            "cancelChangePasswordButton"
+          );
+          const submitButton = document.getElementById(
+            "changePasswordSubmitButton"
+          );
+
+          if (changePasswordSidebar) {
+            changePasswordSidebar.onclick = (e) => {
+              e.preventDefault();
+              const vaiTro = localStorage.getItem("vai_tro");
+              if (vaiTro === "GiangVien" || vaiTro === "QuanTri") {
+                window.app.toggleChangePasswordModal(true);
+                document.getElementById("currentPassword").value = "";
+                document.getElementById("newPassword").value = "";
+                document.getElementById("confirmNewPassword").value = "";
+                document
+                  .getElementById("changePasswordError")
+                  .classList.add("hidden");
+              } else {
+                showNotification("Bạn không có quyền đổi mật khẩu!");
+              }
+            };
+          }
+
+          if (cancelButton) {
+            cancelButton.onclick = () =>
+              window.app.toggleChangePasswordModal(false);
+          }
+
+          if (submitButton) {
+            submitButton.onclick = changePassword;
+          }
+        }
+        // Khởi tạo trang
+        document.addEventListener("DOMContentLoaded", initializePage);
+
+        // Gửi mã xác nhận
+        function sendVerificationCode() {
+          const tenDangNhap =
+            document.getElementById("tenDangNhapDangKy").value;
+          const sendButton = document.getElementById(
+            "sendVerificationCodeButton"
+          );
+          const loiDangKy = document.getElementById("loiDangKy");
+
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!tenDangNhap) {
+            loiDangKy.textContent = "Vui lòng nhập email!";
+            loiDangKy.classList.remove("hidden");
+            return;
+          }
+          if (!emailRegex.test(tenDangNhap)) {
+            loiDangKy.textContent = "Email không hợp lệ!";
+            loiDangKy.classList.remove("hidden");
+            return;
+          }
+
+          fetch("http://127.0.0.1:8000/send_verification_code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: tenDangNhap }), // Thay ten_dang_nhap bằng email
+          })
+            .then((response) => {
+              if (!response.ok) {
+                return response.json().then((err) => {
+                  throw new Error(
+                    JSON.stringify(err.detail) || "Gửi mã thất bại"
+                  );
+                });
+              }
+              return response.json();
+            })
+            .then(() => {
+              showNotification("Mã xác nhận đã được gửi!");
+              sendButton.disabled = true;
+              setTimeout(() => {
+                sendButton.disabled = false;
+              }, 60000);
+            })
+            .catch((error) => {
+              console.error("Lỗi gửi mã:", error);
+              loiDangKy.textContent = `Lỗi: ${error.message}`;
+              loiDangKy.classList.remove("hidden");
+            });
+        }
+
+        // Hàm toggle modal đổi mật khẩu
+        window.app.toggleChangePasswordModal = function (show = true) {
+          const modal = document.getElementById("modalChangePassword");
+          if (modal) {
+            modal.style.display = show ? "flex" : "none";
+            modal.classList.toggle("hidden", !show);
+          }
+        };
+
+        // Hàm đổi mật khẩu
+        async function changePassword() {
+          const token = localStorage.getItem("access_token");
+          const currentPassword =
+            document.getElementById("currentPassword").value;
+          const newPassword = document.getElementById("newPassword").value;
+          const confirmNewPassword =
+            document.getElementById("confirmNewPassword").value;
+          const errorDiv = document.getElementById("changePasswordError");
+
+          if (!token) {
+            showNotification("Vui lòng đăng nhập để đổi mật khẩu!");
+            toggleModal("modalDangNhap", true);
+            return;
+          }
+
+          if (!currentPassword || !newPassword || !confirmNewPassword) {
+            errorDiv.textContent = "Vui lòng điền đầy đủ thông tin!";
+            errorDiv.classList.remove("hidden");
+            return;
+          }
+
+          if (newPassword !== confirmNewPassword) {
+            errorDiv.textContent = "Mật khẩu mới và xác nhận không khớp!";
+            errorDiv.classList.remove("hidden");
+            return;
+          }
+
+          try {
+            const response = await fetch(
+              "http://127.0.0.1:8000/update_password/",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: new URLSearchParams({
+                  email: localStorage.getItem("ten_dang_nhap"),
+                  new_password: newPassword,
+                  current_password: currentPassword,
+                }),
+              }
+            );
+
+            if (!response.ok) {
+              const errorText = await response.text();
+              throw new Error(`Lỗi: ${response.status} - ${errorText}`);
+            }
+
+            const data = await response.json();
+            showNotification("Đổi mật khẩu thành công!");
+            toggleChangePasswordModal(false);
+            // Đăng xuất sau khi đổi mật khẩu để buộc đăng nhập lại với mật khẩu mới
+            logout();
+          } catch (error) {
+            console.error("Lỗi đổi mật khẩu:", error);
+            errorDiv.textContent = error.message || "Lỗi khi đổi mật khẩu!";
+            errorDiv.classList.remove("hidden");
+          }
+        }
+        async function login(tenDangNhap, matKhau, loiDangNhap) {
+          if (loiDangNhap) loiDangNhap.classList.add("hidden");
+          if (!tenDangNhap || !matKhau) {
+            if (loiDangNhap) {
+              loiDangNhap.textContent =
+                "Vui lòng nhập tên đăng nhập và mật khẩu!";
+              loiDangNhap.classList.remove("hidden");
+            }
+            return;
+          }
+          try {
+            const response = await fetch("http://127.0.0.1:8000/dangnhap", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: new URLSearchParams({
+                username: tenDangNhap,
+                password: matKhau,
+              }),
+            });
+            if (!response.ok) {
+              const errorData = await response
+                .json()
+                .catch(() => ({ detail: "Lỗi không xác định" }));
+              throw new Error(errorData.detail || `HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            console.log("Login response data:", data);
+            // Kiểm tra token trước khi lưu
+            if (
+              data.access_token &&
+              typeof data.access_token === "string" &&
+              data.access_token.trim()
+            ) {
+              localStorage.setItem("access_token", data.access_token.trim());
+              if (
+                data.refresh_token &&
+                typeof data.refresh_token === "string" &&
+                data.refresh_token.trim()
+              ) {
+                localStorage.setItem(
+                  "refresh_token",
+                  data.refresh_token.trim()
+                );
+              } else {
+                console.warn("No refresh token provided in login response");
+                localStorage.removeItem("refresh_token"); // Xóa refresh_token nếu không hợp lệ
+              }
+              console.log("Tokens saved:", {
+                access_token: data.access_token,
+                refresh_token: data.refresh_token || "Not provided",
+              });
+              window.app.toggleModal("modalDangNhap", false);
+              showNotification("Đăng nhập thành công!");
+              await checkLoginStatus();
+            } else {
+              throw new Error("Không nhận được access token hợp lệ!");
+            }
+          } catch (error) {
+            console.error("Login error:", error);
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            if (loiDangNhap) {
+              loiDangNhap.textContent = error.message;
+              loiDangNhap.classList.remove("hidden");
+            } else {
+              showNotification(error.message);
+            }
+          }
+        }
+        function setupEditorClickListeners() {
+          const setIndex = 0;
+          if (editors[setIndex]) {
+            ["html", "css", "js"].forEach((type) => {
+              if (editors[setIndex][type]) {
+                editors[setIndex][type].onMouseDown((e) => {
+                  const position = e.target.position;
+                  if (
+                    position &&
+                    window.app.errorStates[
+                      `${type.toUpperCase()}_${position.lineNumber}`
+                    ]
+                  ) {
+                    // Xóa decoration cũ để tránh chặn chỉnh sửa
+                    currentDecorations = editors[setIndex][
+                      type
+                    ].deltaDecorations(currentDecorations, []);
+                    // Đặt con trỏ và cho phép chỉnh sửa
+                    editors[setIndex][type].setPosition({
+                      lineNumber: position.lineNumber,
+                      column: 1,
+                    });
+                    editors[setIndex][type].focus();
+                    // Chọn toàn bộ dòng để dễ chỉnh sửa
+                    editors[setIndex][type].setSelection({
+                      startLineNumber: position.lineNumber,
+                      startColumn: 1,
+                      endLineNumber: position.lineNumber,
+                      endColumn:
+                        editors[setIndex][type]
+                          .getModel()
+                          .getLineLength(position.lineNumber) + 1,
+                    });
+                  }
+                });
+              }
+            });
+          }
+        }
+        // Khởi tạo sự kiện
+        function initializeEvents() {
+          const elements = {
+            loginButton: document.getElementById("loginButton"),
+            logoutButton: document.getElementById("logoutButton"),
+            checkButton: document.getElementById("checkButton"),
+            uploadButton: document.getElementById("uploadButton"),
+            historyButton: document.getElementById("historyButton"),
+            loginSubmitButton: document.getElementById("loginSubmitButton"),
+            registerSubmitButton: document.getElementById(
+              "registerSubmitButton"
+            ),
+            chuyenSangDangKyButton: document.getElementById(
+              "chuyenSangDangKyButton"
+            ),
+            chuyenSangDangNhapButton: document.getElementById(
+              "chuyenSangDangNhapButton"
+            ),
+            dongThongBaoButton: document.getElementById("dongThongBaoButton"),
+            closeDetailModalButton: document.getElementById(
+              "closeDetailModalButton"
+            ),
+            closeHistoryModalButton: document.getElementById(
+              "closeHistoryModalButton"
+            ),
+            clearHistoryButton: document.getElementById("clearHistoryButton"),
+            sendVerificationCodeButton: document.getElementById(
+              "sendVerificationCodeButton"
+            ),
+            tenDangNhapDangKy: document.getElementById("tenDangNhapDangKy"),
+          };
+
+          const missingElements = Object.keys(elements).filter(
+            (key) => !elements[key]
+          );
+          if (missingElements.length) {
+            console.error(`Missing elements: ${missingElements.join(", ")}`);
+            return;
+          }
+
+          elements.loginButton.onclick = () =>
+            window.app.toggleModal("modalDangNhap", true);
+          elements.logoutButton.onclick = logout;
+          elements.checkButton.onclick = checkCode;
+          elements.uploadButton.onclick = uploadFile;
+          elements.historyButton.onclick = showHistory;
+          elements.loginSubmitButton.onclick = function () {
+            const tenDangNhap = document.getElementById("tenDangNhap").value;
+            const matKhau = document.getElementById("matKhau").value;
+            const loiDangNhap = document.getElementById("loiDangNhap");
+            login(tenDangNhap, matKhau, loiDangNhap);
+          };
+          elements.registerSubmitButton.onclick = register;
+          elements.chuyenSangDangKyButton.onclick = chuyenSangDangKy;
+          elements.chuyenSangDangNhapButton.onclick = chuyenSangDangNhap;
+          elements.dongThongBaoButton.onclick = () =>
+            window.app.toggleModal("modalThongBao", false);
+          elements.closeDetailModalButton.onclick = () =>
+            toggleModal("detailModal", false);
+          elements.closeHistoryModalButton.onclick = () =>
+            window.app.toggleModal("historyModal", false);
+          elements.clearHistoryButton.onclick = clearHistory;
+          elements.sendVerificationCodeButton.onclick = sendVerificationCode;
+
+          elements.tenDangNhapDangKy.oninput = () => {
+            elements.sendVerificationCodeButton.disabled =
+              !elements.tenDangNhapDangKy.value;
+          };
+
+          const viewInfoSidebar = document.getElementById("viewInfoSidebar");
+          const manageExerciseSidebar = document.getElementById(
+            "manageExerciseSidebar"
+          );
+          const manageClassSidebar =
+            document.getElementById("manageClassSidebar");
+          const manageAccountSidebar = document.getElementById(
+            "manageAccountSidebar"
+          );
+
+          if (viewInfoSidebar) viewInfoSidebar.onclick = toggleInfoSubButtons;
+          if (manageExerciseSidebar)
+            manageExerciseSidebar.onclick = toggleExerciseSubButtons;
+          if (manageClassSidebar)
+            manageClassSidebar.onclick = toggleClassSubButtons;
+          if (manageAccountSidebar) {
+            manageAccountSidebar.onclick = toggleAccountSubButtons;
+          }
+
+          const createExerciseLink = document.querySelector(
+            '.exercise-sub-buttons a[href="/taobaitap"]'
+          );
+          const exerciseListLink = document.querySelector(
+            '.exercise-sub-buttons a[href="/danhsachbaitap"]'
+          );
+          const createClassLink = document.querySelector(
+            '.class-sub-buttons a[href="/taolophoc"]'
+          );
+          const classListLink = document.querySelector(
+            '.class-sub-buttons a[href="/danhsachlop"]'
+          );
+
+          if (createExerciseLink)
+            createExerciseLink.onclick = navigateToCreateExercise;
+          if (exerciseListLink)
+            exerciseListLink.onclick = navigateToExerciseList;
+          if (createClassLink) createClassLink.onclick = navigateToCreateClass;
+          if (classListLink) classListLink.onclick = navigateToClassList;
+        }
+
+        // Hàm tải nội dung bài tập
+        function loadExercise() {
+          // Kiểm tra nếu đến từ nút "Làm bài", ưu tiên sessionStorage
+          const isFromDoExercise = sessionStorage.getItem("isFromDoExercise");
+          if (isFromDoExercise) {
+            console.log("Loading from sessionStorage, skipping API call");
+            return; // Bỏ qua gọi API vì đã xử lý trong loadExerciseContentFromSession
+          }
+
+          const urlParams = new URLSearchParams(window.location.search);
+          const exerciseId = urlParams.get("exercise_id");
+
+          if (!exerciseId) {
+            console.log("No exercise ID found in URL");
+            resetEditors();
+            return;
+          }
+
+          const token = localStorage.getItem("access_token");
+          if (!token) {
+            showNotification("Vui lòng đăng nhập để tải bài tập!");
+            toggleModal("modalDangNhap", true);
+            return;
+          }
+
+          fetch(`http://127.0.0.1:8000/exercise/${exerciseId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Không thể tải bài tập");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              // Chỉ lấy nội dung mã
+              const content = {
+                html: data.noi_dung?.html || "",
+                css: data.noi_dung?.css || "",
+                js: data.noi_dung?.js || "",
+              };
+              console.log("Exercise content from API:", content);
+
+              const setIndex = 0;
+              if (!editors[setIndex]) {
+                console.warn("Editors not initialized, cannot load exercise");
+                showNotification("Editor chưa sẵn sàng, vui lòng thử lại!");
+                return;
+              }
+
+              if (content.html && editors[setIndex].html) {
+                editors[setIndex].html.setValue(content.html);
+                editors[setIndex].html.trigger(
+                  "editor",
+                  "editor.action.formatDocument"
+                );
+                document.querySelector(".html-checkbox").checked =
+                  !!content.html;
+              }
+              if (content.css && editors[setIndex].css) {
+                editors[setIndex].css.setValue(content.css);
+                editors[setIndex].css.trigger(
+                  "editor",
+                  "editor.action.formatDocument"
+                );
+                document.querySelector(".css-checkbox").checked = !!content.css;
+              }
+              if (content.js && editors[setIndex].js) {
+                editors[setIndex].js.setValue(content.js);
+                editors[setIndex].js.trigger(
+                  "editor",
+                  "editor.action.formatDocument"
+                );
+                document.querySelector(".js-checkbox").checked = !!content.js;
+              }
+              console.log("Exercise loaded successfully from API:", content);
+              updatePreview(); // Cập nhật preview sau khi gán
+            })
+            .catch((error) => {
+              console.error("Error loading exercise:", error);
+              showNotification("Không thể tải bài tập!");
+              resetEditors();
+            });
+        }
+
+        async function loadExerciseContent(ma_bai_tap) {
+          try {
+            const response = await fetch(`/exercise/content/${ma_bai_tap}`, {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Thay bằng cách lấy token của bạn
+              },
+            });
+            if (!response.ok) throw new Error("Không thể lấy nội dung bài tập");
+            const data = await response.json();
+
+            // Gán nội dung vào editor (giả sử editors đã được khởi tạo)
+            if (editors.html) editors.html.setValue(data.html);
+            if (editors.css) editors.css.setValue(data.css);
+            if (editors.js) editors.js.setValue(data.js);
+          } catch (error) {
+            console.error("Lỗi khi tải nội dung bài tập:", error);
+            showNotification(
+              "Không thể tải nội dung bài tập, vui lòng thử lại!"
+            );
+          }
+        }
+
+        function updatePreview() {
+          console.log("updatePreview called");
+          const setIndex = 0;
+          const previewFrame = document.getElementById("preview");
+
+          if (!previewFrame) {
+            console.error("Preview iframe not found");
+            showNotification("Lỗi: Không tìm thấy khung xem trước!");
+            return;
+          }
+          if (!editors[setIndex]) {
+            console.error("Editors not initialized for set", setIndex);
+            return;
+          }
+          console.log("Editors found:", editors[setIndex]);
+          const html = editors[setIndex].html.getValue() || "";
+          const css = editors[setIndex].css
+            ? `<style>${editors[setIndex].css.getValue() || ""}</style>`
+            : "";
+
+          const js = `<script>${
+            editors[setIndex].js.getValue() || ""
+          }\x3C/script>`;
+
+          const previewContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>${css}</head>
+        <body>${html}${js}</body>
+        </html>
+    `;
+          console.log("Preview content:", previewContent);
+          previewFrame.srcdoc = previewContent;
+        }
+        ////////
+        function setupEditorChangeListeners() {
+          const setIndex = 0;
+          if (editors[setIndex]) {
+            if (editors[setIndex].html) {
+              editors[setIndex].html.onDidChangeModelContent(() => {
+                const htmlContent = editors[setIndex].html.getValue();
+                const cssMatch = htmlContent.match(
+                  /<style[^>]*>([\s\S]*?)<\/style>/i
+                );
+                const jsMatch = htmlContent.match(
+                  /<script[^>]*>([\s\S]*?)<\/script>/i
+                );
+                let html = htmlContent;
+
+                if (cssMatch) {
+                  const css = cssMatch[1].trim();
+                  if (editors[setIndex].css) {
+                    editors[setIndex].css.setValue(css);
+                    editors[setIndex].css.trigger(
+                      "editor",
+                      "editor.action.formatDocument"
+                    );
+                    document.querySelector(
+                      ".code-set .css-checkbox"
+                    ).checked = true;
+                  }
+                  html = html.replace(cssMatch[0], "").trim();
+                }
+
+                if (jsMatch) {
+                  const js = jsMatch[1].trim();
+                  if (editors[setIndex].js) {
+                    editors[setIndex].js.setValue(js);
+                    editors[setIndex].js.trigger(
+                      "editor",
+                      "editor.action.formatDocument"
+                    );
+                    document.querySelector(
+                      ".code-set .js-checkbox"
+                    ).checked = true;
+                  }
+                  html = html.replace(jsMatch[0], "").trim();
+                }
+
+                const htmlCheckbox = document.querySelector(
+                  ".code-set .html-checkbox"
+                );
+                if (htmlContent.trim() && htmlCheckbox) {
+                  htmlCheckbox.checked = true;
+                }
+
+                if (html !== htmlContent && editors[setIndex].html) {
+                  editors[setIndex].html.setValue(html);
+                  editors[setIndex].html.trigger(
+                    "editor",
+                    "editor.action.formatDocument"
+                  );
+                }
+
+                // Kiểm tra lại lỗi sau khi thay đổi
+                checkAndClearErrorHighlight("HTML", editors[setIndex].html);
+                updatePreview();
+              });
+            }
+            if (editors[setIndex].css) {
+              editors[setIndex].css.onDidChangeModelContent(() => {
+                const cssContent = editors[setIndex].css.getValue().trim();
+                const cssCheckbox = document.querySelector(
+                  ".code-set .css-checkbox"
+                );
+                if (cssContent && cssCheckbox) {
+                  cssCheckbox.checked = true;
+                }
+                checkAndClearErrorHighlight("CSS", editors[setIndex].css);
+                updatePreview();
+              });
+            }
+            if (editors[setIndex].js) {
+              editors[setIndex].js.onDidChangeModelContent(() => {
+                const jsContent = editors[setIndex].js.getValue().trim();
+                const jsCheckbox = document.querySelector(
+                  ".code-set .js-checkbox"
+                );
+                if (jsContent && jsCheckbox) {
+                  jsCheckbox.checked = true;
+                }
+                checkAndClearErrorHighlight("JavaScript", editors[setIndex].js);
+                updatePreview();
+              });
+            }
+          }
+        }
+
+        // Hàm kiểm tra và xóa highlight nếu không còn lỗi
+        function checkAndClearErrorHighlight(language, editor) {
+          if (!window.app.errorStates) return;
+
+          const lines = editor.getValue().split("\n");
+          for (let lineNumber in window.app.errorStates) {
+            if (
+              lineNumber.startsWith(`${language}_`) &&
+              window.app.errorStates[lineNumber].isActive
+            ) {
+              const num = parseInt(lineNumber.split("_")[1]);
+              if (
+                num <= lines.length &&
+                !lines[num - 1].trim().match(/error|invalid/i)
+              ) {
+                // Giả định lỗi đã được sửa nếu không còn từ khóa "error" hoặc "invalid"
+                currentDecorations = editor.deltaDecorations(
+                  currentDecorations,
+                  []
+                );
+                delete window.app.errorStates[lineNumber];
+              }
+            }
+          }
+        }
+        ////
+      })();
+    </script>
+  </body>
+</html>
