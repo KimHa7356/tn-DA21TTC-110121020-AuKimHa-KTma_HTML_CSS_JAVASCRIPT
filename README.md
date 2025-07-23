@@ -33,15 +33,15 @@
 
 ## CÁCH THỨC CHẠY CHƯƠNG TRÌNH
 
-    1.Clone Repository:
+### Clone Repository
 
 - Mở terminal hoặc command prompt
 - Chạy lệnh sau để tải mã nguồn từ GitHub
   - git clone https://github.com/KimHa7356/tn-DA21TTC-110121020-AuKimHa-KTma_HTML_CSS_JAVASCRIPT.git
 - Di chuyển vào thư mục dự án vừa clone:
-
   - cd tn-DA21TTC-110121020-AuKimHa-KTma_HTML_CSS_JAVASCRIPT
-    2.Chạy Backend
+
+### Chạy Backend
 
 - Mở terminal, di chuyển đến thư mục dự án, và chạy server FastAPI:
   - uvicorn main:app --reload
