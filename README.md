@@ -23,6 +23,7 @@
 
 - Frontend: Sử dụng HTML, CSS (Tailwind CSS), và JAVASCRIPT để xây dựng giao diện người dùng trực quan.
 - Backend: Xây dựng bằng FastAPI, tích hợp các công cụ phân tích mã nguồn và cung cấp phản hồi chi tiết.
+- Cơ sở dữ liệu: Sử dụng SQLite để lưu trữ thông tin người dùng (tên đăng nhập, vai trò), mã nguồn đã tải lên, kết quả đánh giá, và lịch sử phân tích. Dữ liệu được lưu trữ trong một file cơ sở dữ liệu.
 
 ## PHẦN MỀM CẦN THIẾT
 
